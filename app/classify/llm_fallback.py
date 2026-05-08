@@ -1,12 +1,15 @@
 """LLM fallback for low-confidence document classification.
 
 When the regex-based classifier returns low confidence (< 0.70) or an ambiguous
-result, this module calls a configured LLM (cloud by default, local opt-in)
-to get a second opinion on the document type, person, and provider.
+result, this module calls a configured LLM to get a second opinion on the
+document type, person, and provider.
+
+Default flow: try local LLM first (60s timeout), fall back to cloud on failure.
+Sensitive doc types (identity_card, medical_record, prescription, lab_requisition)
+use local only — if local fails, they go to manual review instead of cloud.
 
 Results are cached in the llm_classifications SQLite table keyed by
-ocr_text_sha256 + model, so the same OCR text never calls the LLM twice.
-Every cloud call is logged to feedback.jsonl for audit.
+ocr_text_sha256 + model. Every call is logged (both local and cloud).
 """
 from __future__ import annotations
 
@@ -53,6 +56,7 @@ def _get_conn() -> sqlite3.Connection:
             confidence REAL,
             reasoning TEXT,
             latency_ms INTEGER,
+            source TEXT DEFAULT 'unknown',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (ocr_text_hash, model)
         )
@@ -82,17 +86,17 @@ def _check_cache(ocr_text_sha: str, model: str) -> dict | None:
 def _save_cache(ocr_text_sha: str, model: str, doc_type: str | None,
                 person: str | None, provider: str | None,
                 confidence: float | None, reasoning: str | None,
-                latency_ms: int | None) -> None:
+                latency_ms: int | None, source: str = "unknown") -> None:
     """Save LLM classification result to cache."""
     conn = _get_conn()
     try:
         conn.execute(
             """INSERT OR REPLACE INTO llm_classifications
                (ocr_text_hash, model, doc_type, person, provider,
-                confidence, reasoning, latency_ms, created_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)""",
+                confidence, reasoning, latency_ms, source, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)""",
             (ocr_text_sha, model, doc_type, person, provider,
-             confidence, reasoning, latency_ms),
+             confidence, reasoning, latency_ms, source),
         )
         conn.commit()
     finally:
@@ -100,14 +104,16 @@ def _save_cache(ocr_text_sha: str, model: str, doc_type: str | None,
 
 
 def _log_feedback(ocr_text_sha: str, model: str, doc_type_proposed: str | None,
-                  latency_ms: int) -> None:
-    """Log every cloud LLM call to feedback.jsonl for audit."""
+                  latency_ms: int, source: str, fallback: bool = False) -> None:
+    """Log every LLM call (local and cloud) to feedback.jsonl for audit."""
     entry = {
         "ts": datetime.now().isoformat(),
         "sha256": ocr_text_sha,
         "model": model,
+        "source": source,  # "local" or "cloud"
         "doc_type_proposed": doc_type_proposed,
         "latency_ms": latency_ms,
+        "fallback": fallback,  # True if this was a fallback from local→cloud
     }
     FEEDBACK_LOG.parent.mkdir(parents=True, exist_ok=True)
     with open(FEEDBACK_LOG, "a", encoding="utf-8") as f:
@@ -115,11 +121,11 @@ def _log_feedback(ocr_text_sha: str, model: str, doc_type_proposed: str | None,
 
 
 def _call_ollama(endpoint: str, model: str, prompt: str,
-                 timeout_seconds: int, max_retries: int) -> str | None:
+                 timeout_seconds: int, max_retries: int) -> tuple[str | None, str | None]:
     """Call an Ollama-compatible API endpoint synchronously.
 
-    POST to endpoint with {"model": ..., "messages": [...], "stream": false}.
-    Returns the response content text, or None on failure.
+    Returns (response_text, error_message) tuple.
+    response_text is None on failure.
     """
     payload = json.dumps({
         "model": model,
@@ -137,30 +143,23 @@ def _call_ollama(endpoint: str, model: str, prompt: str,
             )
             with urlopen(req, timeout=timeout_seconds) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-                return data.get("message", {}).get("content", "")
+                return data.get("message", {}).get("content", ""), None
         except (URLError, HTTPError, TimeoutError, OSError, json.JSONDecodeError) as e:
-            last_error = e
+            last_error = str(e)
             logger.debug(f"LLM call attempt {attempt + 1} failed: {e}")
             continue
 
     logger.warning(f"LLM call failed after {1 + max_retries} attempt(s): {last_error}")
-    return None
+    return None, last_error
 
 
 def _parse_llm_response(raw: str) -> dict | None:
-    """Parse JSON from LLM response text.
-
-    The LLM is asked to respond with:
-    {"doc_type": ..., "person": ..., "provider": ..., "confidence": ..., "reasoning": ...}
-
-    Tries to extract JSON from markdown code fences or raw text.
-    Returns parsed dict or None.
-    """
+    """Parse JSON from LLM response text."""
     if not raw:
         return None
 
-    # Try to find JSON in code fences
     import re
+    # Try to find JSON in code fences
     fence_match = re.search(r"```(?:json)?\s*\n?(.*?)\n?```", raw, re.DOTALL)
     if fence_match:
         raw = fence_match.group(1).strip()
@@ -196,18 +195,14 @@ def run_llm_fallback(
 ) -> dict | None:
     """Run LLM fallback classification for a low-confidence document.
 
-    Args:
-        ocr_text: Full OCR text of the document.
-        candidates: List of candidate classifications with confidence scores.
-        config: LLM config dict (loaded from config/llm.yaml if not provided).
-        known_doc_types: List of valid doc type names for the prompt.
-        known_people: List of known person names for the prompt.
-        sensitive_doc_type: If the doc was classified as a sensitive type
-            (e.g., identity_card), routing logic changes.
+    Flow:
+    1. For sensitive doc types: try local only. If local fails → manual review (no cloud).
+    2. For non-sensitive docs: try local first (60s timeout). If local fails/times out → fall back to cloud.
+    3. Results are cached by (ocr_text_hash, model).
 
     Returns:
         Dict with keys: doc_type, person, provider, confidence, reasoning,
-        model, from_cache. Or None if LLM fallback is disabled or fails.
+        model, from_cache, source, fallback. Or None if LLM fallback is disabled or fails.
     """
     if config is None:
         config = load_llm_config()
@@ -217,45 +212,13 @@ def run_llm_fallback(
     if not fallback_cfg.get("enabled", False):
         return None
 
-    trigger = fallback_cfg.get("trigger", {})
-    # Note: trigger condition checking is done by the caller (engine.py)
-    # This function is only called when trigger conditions are already met.
-
     ocr_text_sha = _ocr_text_hash(ocr_text)
     cloud_cfg = fallback_cfg.get("cloud", {})
     local_cfg = fallback_cfg.get("local", {})
     sensitive_types = set(fallback_cfg.get("sensitive_doc_types_skip_cloud", []))
-
-    # Determine which model to use
     is_sensitive = sensitive_doc_type in sensitive_types if sensitive_doc_type else False
 
-    if is_sensitive:
-        if not local_cfg.get("enabled", False):
-            # Sensitive doc type, local not enabled → skip entirely
-            logger.info(f"Skipping LLM fallback for sensitive doc type '{sensitive_doc_type}' (local LLM not enabled)")
-            return None
-        # Sensitive doc type, local enabled → use local only, never cloud
-        model = local_cfg.get("model", "qwen3-vl:8b")
-        endpoint = local_cfg.get("endpoint", "http://localhost:11434/api/chat")
-        timeout = local_cfg.get("timeout_seconds", 5)
-        max_retries = local_cfg.get("max_retries", 0)
-    else:
-        # Default: use cloud model
-        if not cloud_cfg.get("enabled", True):
-            return None
-        model = cloud_cfg.get("model", "glm-5.1:cloud")
-        endpoint = cloud_cfg.get("endpoint", "http://localhost:11434/api/chat")
-        timeout = cloud_cfg.get("timeout_seconds", 30)
-        max_retries = cloud_cfg.get("max_retries", 1)
-
-    # Check cache first
-    cached = _check_cache(ocr_text_sha, model)
-    if cached and cached.get("doc_type"):
-        cached["from_cache"] = True
-        cached["model"] = model
-        return cached
-
-    # Build prompt
+    # Build prompt (shared between local and cloud)
     truncated_text = ocr_text[:2000] if len(ocr_text) > 2000 else ocr_text
     doc_types_str = ", ".join(known_doc_types) if known_doc_types else "lab_requisition, medical_record, prescription, bill, identity_card, insurance, business, vehicle, employment, receipt, dental"
     people_str = ", ".join(known_people) if known_people else "Daniel, Natalie, Isabella"
@@ -267,56 +230,132 @@ def run_llm_fallback(
         f'Respond in JSON only: {{"doc_type": "...", "person": "...", "provider": "...", "confidence": 0.0-1.0, "reasoning": "..."}}'
     )
 
-    # Call LLM
+    # ── Step 1: Try local LLM first (for all docs, if enabled) ──
+    local_result = None
+    if local_cfg.get("enabled", False):
+        local_model = local_cfg.get("model", "qwen3-vl:8b")
+        local_endpoint = local_cfg.get("endpoint", "http://localhost:11434/api/chat")
+        local_timeout = local_cfg.get("timeout_seconds", 60)
+        local_retries = local_cfg.get("max_retries", 0)
+
+        # Check cache first
+        cached = _check_cache(ocr_text_sha, local_model)
+        if cached and cached.get("doc_type"):
+            cached["from_cache"] = True
+            cached["model"] = local_model
+            cached["source"] = "local"
+            cached["fallback"] = False
+            logger.info(f"LLM cache hit (local): {local_model} → {cached['doc_type']} for {ocr_text_sha[:12]}...")
+            return cached
+
+        # Call local LLM
+        logger.info(f"🖥️  LLM LOCAL attempt: {local_model} (timeout: {local_timeout}s) for {ocr_text_sha[:12]}...")
+        t0 = time.time()
+        raw_response, error = _call_ollama(local_endpoint, local_model, prompt, local_timeout, local_retries)
+        latency_ms = int((time.time() - t0) * 1000)
+
+        if raw_response:
+            parsed = _parse_llm_response(raw_response)
+            if parsed and parsed.get("doc_type"):
+                local_result = {
+                    "doc_type": parsed.get("doc_type", "").strip(),
+                    "person": parsed.get("person", "").strip(),
+                    "provider": parsed.get("provider", "").strip(),
+                    "confidence": max(0.0, min(1.0, float(parsed.get("confidence", 0.0)))),
+                    "reasoning": parsed.get("reasoning", "").strip(),
+                    "model": local_model,
+                    "from_cache": False,
+                    "latency_ms": latency_ms,
+                    "source": "local",
+                    "fallback": False,
+                }
+                _save_cache(ocr_text_sha, local_model, local_result["doc_type"],
+                             local_result["person"], local_result["provider"],
+                             local_result["confidence"], local_result["reasoning"],
+                             latency_ms, source="local")
+                _log_feedback(ocr_text_sha, local_model, local_result["doc_type"],
+                              latency_ms, source="local", fallback=False)
+                logger.info(f"✅ LLM LOCAL success: {local_model} → {local_result['doc_type']}/{local_result['person']} ({latency_ms}ms)")
+            else:
+                logger.warning(f"⚠️  LLM LOCAL returned unparseable response ({latency_ms}ms)")
+                _log_feedback(ocr_text_sha, local_model, None, latency_ms, source="local", fallback=False)
+        else:
+            logger.warning(f"⚠️  LLM LOCAL failed: {error} ({latency_ms}ms)")
+            _log_feedback(ocr_text_sha, local_model, None, latency_ms, source="local", fallback=False)
+
+    # If we got a local result, return it
+    if local_result:
+        if is_sensitive:
+            logger.info(f"🔒 Sensitive doc '{sensitive_doc_type}' — using local result only (no cloud)")
+        return local_result
+
+    # ── Step 2: If local failed or disabled, try cloud ──
+    # For sensitive docs: NO cloud fallback → return None (manual review)
+    if is_sensitive:
+        logger.info(f"🔒 Sensitive doc '{sensitive_doc_type}' — local failed, skipping cloud → manual review")
+        return None
+
+    if not cloud_cfg.get("enabled", True):
+        logger.info("Cloud LLM disabled, no fallback available")
+        return None
+
+    cloud_model = cloud_cfg.get("model", "glm-5.1:cloud")
+    cloud_endpoint = cloud_cfg.get("endpoint", "http://localhost:11434/api/chat")
+    cloud_timeout = cloud_cfg.get("timeout_seconds", 30)
+    cloud_retries = cloud_cfg.get("max_retries", 1)
+    did_fallback = local_result is None and local_cfg.get("enabled", False)
+
+    # Check cache first
+    cached = _check_cache(ocr_text_sha, cloud_model)
+    if cached and cached.get("doc_type"):
+        cached["from_cache"] = True
+        cached["model"] = cloud_model
+        cached["source"] = "cloud"
+        cached["fallback"] = did_fallback
+        logger.info(f"LLM cache hit (cloud): {cloud_model} → {cached['doc_type']} for {ocr_text_sha[:12]}...")
+        return cached
+
+    # Call cloud LLM
+    fallback_label = " (FALLBACK from local)" if did_fallback else ""
+    logger.info(f"☁️  LLM CLOUD attempt: {cloud_model}{fallback_label} for {ocr_text_sha[:12]}...")
     t0 = time.time()
-    raw_response = _call_ollama(endpoint, model, prompt, timeout, max_retries)
+    raw_response, error = _call_ollama(cloud_endpoint, cloud_model, prompt, cloud_timeout, cloud_retries)
     latency_ms = int((time.time() - t0) * 1000)
 
     if not raw_response:
-        logger.warning("LLM returned empty response")
+        logger.warning(f"⚠️  LLM CLOUD failed: {error} ({latency_ms}ms)")
+        _log_feedback(ocr_text_sha, cloud_model, None, latency_ms, source="cloud", fallback=did_fallback)
         return None
 
-    # Parse response
     parsed = _parse_llm_response(raw_response)
-    if not parsed:
-        logger.warning(f"Could not parse LLM response as JSON: {raw_response[:200]}")
+    if not parsed or not parsed.get("doc_type"):
+        logger.warning(f"⚠️  LLM CLOUD returned unparseable response ({latency_ms}ms)")
+        _log_feedback(ocr_text_sha, cloud_model, None, latency_ms, source="cloud", fallback=did_fallback)
         return None
 
-    # Validate and extract fields
-    doc_type = parsed.get("doc_type", "").strip()
-    person = parsed.get("person", "").strip()
-    provider = parsed.get("provider", "").strip()
-    confidence = parsed.get("confidence", 0.0)
-    reasoning = parsed.get("reasoning", "").strip()
-
-    # Clamp confidence
-    try:
-        confidence = float(confidence)
-        confidence = max(0.0, min(1.0, confidence))
-    except (TypeError, ValueError):
-        confidence = 0.0
-
-    if not doc_type:
-        return None
-
-    # Save to cache
-    _save_cache(ocr_text_sha, model, doc_type, person, provider,
-                confidence, reasoning, latency_ms)
-
-    # Log cloud calls to feedback.jsonl
-    if not is_sensitive:  # Only log cloud calls
-        _log_feedback(ocr_text_sha, model, doc_type, latency_ms)
-
-    return {
-        "doc_type": doc_type,
-        "person": person,
-        "provider": provider,
-        "confidence": confidence,
-        "reasoning": reasoning,
-        "model": model,
+    cloud_result = {
+        "doc_type": parsed.get("doc_type", "").strip(),
+        "person": parsed.get("person", "").strip(),
+        "provider": parsed.get("provider", "").strip(),
+        "confidence": max(0.0, min(1.0, float(parsed.get("confidence", 0.0)))),
+        "reasoning": parsed.get("reasoning", "").strip(),
+        "model": cloud_model,
         "from_cache": False,
         "latency_ms": latency_ms,
+        "source": "cloud",
+        "fallback": did_fallback,
     }
+    _save_cache(ocr_text_sha, cloud_model, cloud_result["doc_type"],
+                cloud_result["person"], cloud_result["provider"],
+                cloud_result["confidence"], cloud_result["reasoning"],
+                latency_ms, source="cloud")
+    _log_feedback(ocr_text_sha, cloud_model, cloud_result["doc_type"],
+                  latency_ms, source="cloud", fallback=did_fallback)
+
+    fallback_msg = " (FALLBACK from local)" if did_fallback else ""
+    logger.info(f"✅ LLM CLOUD success: {cloud_model} → {cloud_result['doc_type']}/{cloud_result['person']} ({latency_ms}ms){fallback_msg}")
+
+    return cloud_result
 
 
 def get_llm_stats() -> dict:
@@ -351,7 +390,7 @@ def get_llm_stats() -> dict:
             })
         stats["per_model"] = model_stats
 
-        # Cloud vs local split (heuristic: models containing "cloud" → cloud)
+        # Cloud vs local split
         c.execute("""
             SELECT
                 SUM(CASE WHEN model LIKE '%cloud%' THEN 1 ELSE 0 END) as cloud_count,
@@ -367,22 +406,31 @@ def get_llm_stats() -> dict:
         avg = c.fetchone()[0]
         stats["avg_latency_ms"] = round(avg, 1) if avg else 0
 
-        # Timeout/fallback rate: entries with very high latency (> timeout threshold)
+        # Timeout/fallback rate
         c.execute("""
             SELECT COUNT(*) FROM llm_classifications
             WHERE latency_ms > 30000
         """)
         stats["likely_timeouts"] = c.fetchone()[0]
 
-        # Feedback log stats
+        # Fallback rate from feedback.jsonl
+        fallback_count = 0
         if FEEDBACK_LOG.exists():
             try:
                 lines = FEEDBACK_LOG.read_text(encoding="utf-8").strip().split("\n")
                 stats["feedback_log_entries"] = len([l for l in lines if l.strip()])
+                for line in lines:
+                    try:
+                        entry = json.loads(line)
+                        if entry.get("fallback"):
+                            fallback_count += 1
+                    except (json.JSONDecodeError, TypeError):
+                        pass
             except Exception:
                 stats["feedback_log_entries"] = 0
         else:
             stats["feedback_log_entries"] = 0
+        stats["fallback_count"] = fallback_count
 
         return stats
     finally:
