@@ -301,7 +301,7 @@ def run_llm_fallback(
 
     cloud_model = cloud_cfg.get("model", "glm-5.1:cloud")
     cloud_endpoint = cloud_cfg.get("endpoint", "http://localhost:11434/api/chat")
-    cloud_timeout = cloud_cfg.get("timeout_seconds", 30)
+    cloud_timeout = cloud_cfg.get("timeout_seconds", 0) or None  # 0 or None = no timeout
     cloud_retries = cloud_cfg.get("max_retries", 1)
     did_fallback = local_result is None and local_cfg.get("enabled", False)
 

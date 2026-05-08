@@ -6,7 +6,7 @@ llm_fallback:
     enabled: true
     model: "glm-5.1:cloud"
     endpoint: "http://localhost:11434/api/chat"
-    timeout_seconds: 30
+    timeout_seconds: 0  # 0 = no timeout for cloud
     max_retries: 1
 
   # Local LLM — used FIRST for all PII-sensitive docs
