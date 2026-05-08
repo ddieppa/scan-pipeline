@@ -1,40 +1,34 @@
 llm_fallback:
   enabled: true
 
-  # Cloud LLM — fallback when local times out or fails
+  # Cloud LLM (DEFAULT — used for all low-confidence classifications)
   cloud:
     enabled: true
     model: "glm-5.1:cloud"
     endpoint: "http://localhost:11434/api/chat"
-    timeout_seconds: 0  # 0 = no timeout for cloud
+    timeout_seconds: 0  # No timeout for cloud
     max_retries: 1
 
-  # Local LLM — used FIRST for all PII-sensitive docs
-  # 60s timeout to give the 8B model time on CPU
-  # If local fails/times out → falls back to cloud
+  # Local LLM (disabled — too slow on CPU for production use)
   local:
-    enabled: true
+    enabled: false
     model: "qwen3-vl:8b"
     endpoint: "http://localhost:11434/api/chat"
     timeout_seconds: 60
     max_retries: 0
 
   # Doc types that should NEVER be sent to cloud (even if local fails)
-  # These will only use local LLM; if local fails, they go to manual review
   sensitive_doc_types_skip_cloud:
     - "identity_card"
-    - "medical_record"
-    - "prescription"
-    - "lab_requisition"
 
   # Trigger conditions
   trigger:
-    min_confidence: 0.70  # Fire when classification_confidence < this
-    type_gap: 0.10  # Or when top 2 candidate types are within this gap
+    min_confidence: 0.70
+    type_gap: 0.10
 
   # Trust model
-  auto_approve_from_llm: false  # Never auto-approve based on LLM alone (for first month)
-  llm_lift_confidence: 0.05  # How much a confirming LLM result lifts classification_confidence
+  auto_approve_from_llm: false
+  llm_lift_confidence: 0.05
   
   # Logging verbosity
-  log_level: "info"  # debug shows full prompt/response, info shows model+latency+result
+  log_level: "info"
