@@ -810,7 +810,18 @@ def cmd_ocr_cache(args) -> None:
 
 
 def cmd_recover(args) -> None:
-    """Recover stuck files from processing/ directory."""
+    """Recover stuck files from processing/ directory.
+    
+    Also:
+    1. Marks expired proposals (approved_at IS NULL, older than 24h) in scan_lifecycle
+    2. Retries unrecovered failed moves from move_failed table
+    3. Prints a summary
+    
+    # NOTE: The daily cron job should also call `scan_workflow.py recover`
+    # to keep the pipeline clean. Add to OpenClaw cron config:
+    #   openclaw cron add --name scan-recover --schedule '0 3 * * *' -- \
+    #     python3 /home/ddieppa/.openclaw/workspace/scan-pipeline-v3/scan_workflow.py recover
+    """
     from app.settings import load_settings
     settings = load_settings()
     
@@ -823,9 +834,6 @@ def cmd_recover(args) -> None:
     if not inbox.exists():
         inbox = Path("/home/ddieppa/scanner/inbox")
     
-    # Also check the legacy inbox
-    legacy_inbox = Path("/mnt/e/Qsync-Scanned-Documents/!!!Check")
-    
     moved = 0
     skipped = 0
     
@@ -837,7 +845,7 @@ def cmd_recover(args) -> None:
             # Check if file is old enough (older than 30 minutes)
             import time
             age_minutes = (time.time() - f.stat().st_mtime) / 60
-            if age_minutes < 30:
+            if age_minutes < 30 and not getattr(args, 'force', False):
                 skipped += 1
                 print(f"  ⏳ Too recent (< 30 min): {f.name} ({age_minutes:.0f} min old)")
                 continue
@@ -852,7 +860,37 @@ def cmd_recover(args) -> None:
             except OSError as e:
                 print(f"  ❌ Failed to move {f.name}: {e}")
     
-    # Check for failed moves in the database
+    # 0.4 — Expire stale proposals (approved_at IS NULL and older than 24h)
+    expired_count = 0
+    try:
+        import sqlite3
+        from app.state.scan_db import DB_PATH, init_db
+        init_db()
+        conn = sqlite3.connect(str(DB_PATH))
+        c = conn.cursor()
+        c.execute("""
+            SELECT sha256, original_filename FROM scan_lifecycle
+            WHERE approved_at IS NULL
+              AND first_seen_at < datetime('now', '-24 hours')
+        """)
+        stale_rows = c.fetchall()
+        if stale_rows:
+            print(f"\n📋 Found {len(stale_rows)} expired proposal(s) (>24h without approval):")
+            for sha, fname in stale_rows:
+                c.execute("""
+                    UPDATE scan_lifecycle
+                    SET override_type = 'expired',
+                        notes = COALESCE(notes, '') || 'Auto-expired after 24h without approval at ' || datetime('now')
+                    WHERE sha256 = ? AND approved_at IS NULL
+                """, (sha,))
+                print(f"  ⏰ Expired: {fname} (first seen >24h ago)")
+                expired_count += 1
+            conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"  ⚠️ Could not check expired proposals: {e}")
+    
+    # 0.4 — Retry unrecovered failed moves
     from app.safe_move import list_failed_moves, recover_failed_move
     failed = list_failed_moves()
     recovered_moves = 0
@@ -872,7 +910,7 @@ def cmd_recover(args) -> None:
             else:
                 print(f"     ⚠️ Source file no longer exists")
     
-    print(f"\n📊 Recovery summary: {moved} files moved to inbox, {skipped} skipped (too recent), {recovered_moves} failed moves recovered")
+    print(f"\n📊 Recovery summary: recovered {moved} files, expired {expired_count} proposals, retried {recovered_moves} moves")
 
 
 def cmd_failed_moves(args) -> None:
@@ -899,7 +937,301 @@ def cmd_failed_moves(args) -> None:
         print()
 
 
+
+
+def cmd_status(args) -> None:
+    """3.1 — Show pipeline status dashboard."""
+    import sqlite3
+    import time
+    from app.state.scan_db import DB_PATH, init_db
+    from app.settings import load_settings
+    
+    settings = load_settings()
+    init_db()
+    conn = sqlite3.connect(str(DB_PATH))
+    c = conn.cursor()
+    
+    print("📊 Scan Pipeline Status")
+    print("═" * 50)
+    
+    # Watcher: running?
+    watcher_running = False
+    watcher_pid_file = Path("/home/ddieppa/scanner/.watcher.pid")
+    if watcher_pid_file.exists():
+        try:
+            pid = int(watcher_pid_file.read_text().strip())
+            import os
+            os.kill(pid, 0)  # Check if process exists
+            watcher_running = True
+            print(f"  👁️  Watcher:       running (PID {pid})")
+        except (ProcessLookupError, ValueError, PermissionError):
+            print(f"  👁️  Watcher:       stopped (stale PID file)")
+    else:
+        # Try pgrep as fallback
+        import subprocess
+        try:
+            result = subprocess.run(["pgrep", "-f", "watch-inbox.sh"], capture_output=True, text=True)
+            if result.returncode == 0 and result.stdout.strip():
+                watcher_running = True
+                print(f"  👁️  Watcher:       running (pgrep found)")
+            else:
+                print(f"  👁️  Watcher:       stopped")
+        except Exception:
+            print(f"  👁️  Watcher:       unknown")
+    
+    # inbox/ file count + oldest
+    inbox = settings.inbox_root
+    if inbox.exists():
+        inbox_files = list(inbox.rglob("*"))
+        inbox_files = [f for f in inbox_files if f.is_file()]
+        count = len(inbox_files)
+        oldest_age = ""
+        if inbox_files:
+            oldest = min(f.stat().st_mtime for f in inbox_files)
+            age_min = (time.time() - oldest) / 60
+            if age_min < 60:
+                oldest_age = f"{age_min:.0f}m"
+            elif age_min < 1440:
+                oldest_age = f"{age_min/60:.1f}h"
+            else:
+                oldest_age = f"{age_min/1440:.1f}d"
+        print(f"  📥 inbox/:        {count} file(s){f' (oldest: {oldest_age})' if oldest_age else ''}")
+    else:
+        print(f"  📥 inbox/:        not found")
+    
+    # processing/ file count + oldest
+    processing = settings.state_dir.parent / "processing"
+    if not processing.exists():
+        processing = Path("/home/ddieppa/scanner/processing")
+    if processing.exists():
+        proc_files = [f for f in processing.rglob("*") if f.is_file()]
+        count = len(proc_files)
+        suspicious = ""
+        oldest_age = ""
+        if proc_files:
+            oldest = min(f.stat().st_mtime for f in proc_files)
+            age_min = (time.time() - oldest) / 60
+            if age_min < 60:
+                oldest_age = f"{age_min:.0f}m"
+            elif age_min < 1440:
+                oldest_age = f"{age_min/60:.1f}h"
+            else:
+                oldest_age = f"{age_min/1440:.1f}d"
+            if age_min > 30:
+                suspicious = " ⚠️ STUCK?"
+        print(f"  ⚙️  processing/:   {count} file(s){f' (oldest: {oldest_age})' if oldest_age else ''}{suspicious}")
+    else:
+        print(f"  ⚙️  processing/:   not found")
+    
+    # Pending proposals
+    proposals_path = settings.state_dir / "proposals.json"
+    pending_count = 0
+    if proposals_path.exists():
+        try:
+            proposals = json.loads(proposals_path.read_text())
+            pending_count = sum(1 for p in proposals.values() if p.get("status") == "pending")
+        except Exception:
+            pass
+    print(f"  📋 Pending proposals: {pending_count}")
+    
+    # Failed moves
+    c.execute("SELECT COUNT(*) FROM move_failed WHERE recovered_at IS NULL")
+    failed_moves = c.fetchone()[0]
+    print(f"  ❌ Failed moves:    {failed_moves}")
+    
+    # Failed notifications
+    try:
+        c.execute("SELECT COUNT(*) FROM notification_log WHERE success = 0")
+        failed_notifs = c.fetchone()[0]
+    except sqlite3.OperationalError:
+        failed_notifs = 0  # Table may not exist
+    print(f"  🔔 Failed notifications: {failed_notifs}")
+    
+    # Last scan
+    last_batch_path = settings.state_dir / "last_batch.json"
+    if last_batch_path.exists():
+        try:
+            lb = json.loads(last_batch_path.read_text())
+            ts = lb.get("timestamp", "unknown")
+            print(f"  🕐 Last scan:      {ts}")
+        except Exception:
+            print(f"  🕐 Last scan:      error reading")
+    else:
+        print(f"  🕐 Last scan:      never")
+    
+    # QSync mount check
+    qsync = Path("/mnt/e/QSync")
+    qsync_ok = qsync.exists() and qsync.is_dir()
+    print(f"  💾 QSync mount:    {'✅ accessible' if qsync_ok else '❌ NOT accessible'}")
+    
+    # QSync disk space
+    if qsync_ok:
+        try:
+            import shutil as _shutil
+            usage = _shutil.disk_usage(str(qsync))
+            free_mb = usage.free // (1024 * 1024)
+            total_mb = usage.total // (1024 * 1024)
+            pct = usage.used / usage.total * 100
+            print(f"  💿 QSync disk:     {free_mb:,} MB free / {total_mb:,} MB total ({pct:.0f}% used)")
+        except Exception:
+            print(f"  💿 QSync disk:     unable to check")
+    
+    # DB size
+    try:
+        db_size_mb = DB_PATH.stat().st_size / (1024 * 1024)
+        print(f"  🗃️  DB size:        {db_size_mb:.1f} MB")
+    except Exception:
+        print(f"  🗃️  DB size:       unknown")
+    
+    # OCR cache count
+    c.execute("SELECT COUNT(*) FROM ocr_cache")
+    ocr_count = c.fetchone()[0]
+    print(f"  📦 OCR cache:     {ocr_count} entries")
+    
+    # File index count + sidecar counts
+    c.execute("SELECT COUNT(*), SUM(sidecar_has_meta), SUM(sidecar_has_ocr) FROM file_index")
+    row = c.fetchone()
+    idx_count = row[0] or 0
+    meta_count = row[1] or 0
+    ocr_idx_count = row[2] or 0
+    print(f"  🗂️  File index:    {idx_count} entries ({meta_count} with .meta.json, {ocr_idx_count} with .ocr.txt)")
+    
+    conn.close()
+
+
+def cmd_trace(args) -> None:
+    """3.3 — Trace a document through the entire pipeline."""
+    import sqlite3
+    from app.state.scan_db import DB_PATH, init_db
+    
+    init_db()
+    conn = sqlite3.connect(str(DB_PATH))
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    
+    query = args.query.strip()
+    
+    # Find the lifecycle record — by SHA256 or partial filename
+    if len(query) == 64 and all(ch in '0123456789abcdef' for ch in query.lower()):
+        # Exact SHA256
+        c.execute("SELECT * FROM scan_lifecycle WHERE sha256 = ?", (query.lower(),))
+    else:
+        # Partial filename match
+        c.execute("SELECT * FROM scan_lifecycle WHERE original_filename LIKE ? ORDER BY first_seen_at DESC LIMIT 1",
+                  (f"%{query}%",))
+    
+    row = c.fetchone()
+    if not row:
+        print(f"❌ No document found matching: {query}")
+        conn.close()
+        return
+    
+    lc = dict(row)
+    sha = lc['sha256']
+    
+    # Header
+    final_name = lc.get('final_name') or lc.get('proposed_name') or lc['original_filename']
+    print(f"📄 {final_name}")
+    print()
+    
+    # 1. DETECTED
+    first_seen = lc.get('first_seen_at', '')
+    original_path = lc.get('original_path', '')
+    original_name = lc.get('original_filename', '')
+    if first_seen:
+        print(f"{first_seen}  DETECTED    {original_path or original_name}")
+    
+    # 2. OCR
+    text_source = lc.get('text_source', '')
+    text_quality = lc.get('text_quality', 0)
+    if text_source:
+        quality_str = f"{text_quality:.2f}" if text_quality else "N/A"
+        print(f"          OCR         {text_source} (quality: {quality_str})")
+    
+    # 3. CLASSIFIED
+    proposed_type = lc.get('proposed_doc_type', '')
+    cls_conf = lc.get('classification_confidence', 0)
+    if proposed_type:
+        print(f"          CLASSIFIED   {proposed_type} (confidence: {cls_conf:.2f})")
+    
+    # 4. PROPOSED
+    proposed_name = lc.get('proposed_name', '')
+    if proposed_name:
+        print(f"          PROPOSED    {proposed_name}")
+    
+    # 5. Proposals history
+    c.execute("SELECT * FROM scan_proposals WHERE sha256 = ? ORDER BY attempt_number", (sha,))
+    proposals = [dict(r) for r in c.fetchall()]
+    for p in proposals:
+        p_time = p.get('proposed_at', '')
+        resp = p.get('response', 'pending')
+        if resp != 'pending' or p.get('attempt_number', 1) > 1:
+            print(f"{str(p_time)[:19] if p_time else ''}  PROPOSAL #{p.get('attempt_number', '?')}   response: {resp}")
+    
+    # 6. APPROVED
+    approved_at = lc.get('approved_at')
+    override = lc.get('override_type', 'none')
+    if approved_at:
+        override_str = f"override: {override}" if override != 'none' else 'as proposed'
+        print(f"{str(approved_at)[:19]}  APPROVED    {override_str}")
+    elif override == 'expired':
+        notes = lc.get('notes', '')
+        print(f"  ⏰ EXPIRED    {notes[:60]}" if notes else "  ⏰ EXPIRED")
+    elif override == 'deny':
+        reason = lc.get('rejection_reason', '')
+        print(f"  ❌ DENIED     {reason}")
+    else:
+        print(f"  ⏳ PENDING    awaiting approval")
+    
+    # 7. MOVED — check file_moves table
+    c.execute("""SELECT fm.* FROM file_moves fm
+        JOIN scan_results sr ON fm.result_id = sr.id
+        WHERE sr.file_path = ?
+        ORDER BY fm.move_date DESC LIMIT 5""", (lc.get('original_path', ''),))
+    moves = [dict(r) for r in c.fetchall()]
+    
+    # Also check move_failed
+    c.execute("SELECT * FROM move_failed WHERE source_path = ? ORDER BY failed_at DESC LIMIT 5",
+              (lc.get('original_path', ''),))
+    failed = [dict(r) for r in c.fetchall()]
+    
+    for m in moves:
+        if m.get('success'):
+            print(f"{str(m['move_date'])[:19]}  MOVED       {m['destination_path']}")
+        else:
+            print(f"{str(m['move_date'])[:19]}  MOVE FAILED {m.get('error_message', 'unknown error')}")
+    
+    for f in failed:
+        if f.get('recovered_at'):
+            print(f"{str(f['recovered_at'])[:19]}  RECOVERED   move retried successfully")
+        else:
+            print(f"{str(f['failed_at'])[:19]}  MOVE FAILED {f.get('reason', 'unknown')}")
+    
+    # 8. SIDECAR files
+    if lc.get('final_name'):
+        final_dest = lc.get('final_dest', '')
+        if final_dest:
+            dest_path = Path(final_dest)
+            stem = dest_path.stem
+            parent = dest_path.parent
+            sidecars = []
+            for suffix in ['.meta.json', '.ocr.txt']:
+                sc = parent / f"{stem}{suffix}"
+                if sc.exists():
+                    sidecars.append(sc.name)
+            if sidecars:
+                print(f"          SIDECAR     {', '.join(sidecars)} created")
+    
+    conn.close()
+
+
 def main():
+    # ── Setup structured logging ──
+    from app.settings import load_settings
+    _settings = load_settings()
+    from app.logging_config import setup_logging
+    setup_logging(_settings.state_dir)
+
     parser = argparse.ArgumentParser(
         description="Scan workflow — single entry point for inbox scanning",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -944,6 +1276,12 @@ def main():
     clear_parser.add_argument("--all", action="store_true", help="Clear entire cache")
     clear_parser.add_argument("--confirm", action="store_true", help="Confirm clearing entire cache")
 
+    # logs — view structured pipeline logs
+    logs_parser = subparsers.add_parser("logs", help="View structured pipeline logs")
+    logs_parser.add_argument("--sha", default=None, help="Filter by SHA256 hash")
+    logs_parser.add_argument("--tail", type=int, default=20, help="Show last N entries (default 20)")
+    logs_parser.add_argument("--level", default=None, help="Filter by level (ERROR, WARNING, INFO, DEBUG)")
+
     # index — build/update the file duplicate index
     index_parser = subparsers.add_parser("index", help="Build/update the QSync file duplicate index")
     index_parser.add_argument("--force", "-f", action="store_true", help="Force full rebuild (ignore incremental)")
@@ -959,10 +1297,17 @@ def main():
     correct_parser.add_argument("--person", default=None, help="Correct person name")
     correct_parser.add_argument("--provider", default=None, help="Correct provider")
 
+    # notifications — list failed notification log entries
+    notifications_parser = subparsers.add_parser("notifications", help="List failed notification log entries")
+    notifications_parser.add_argument("--limit", type=int, default=20, help="Max entries to show")
+    notifications_parser.add_argument("--all", action="store_true", help="Show all entries (not just failed)")
+
     # lifecycle — view scan lifecycle stats and history
     lifecycle_parser = subparsers.add_parser("lifecycle", help="View scan lifecycle stats and history")
     lifecycle_parser.add_argument("--sha", default=None, help="SHA256 hash to view full history")
     lifecycle_parser.add_argument("--stats", action="store_true", help="Show aggregate statistics")
+    lifecycle_parser.add_argument("--days", type=int, default=30, help="Number of days for date filtering (default: 30)")
+    lifecycle_parser.add_argument("--verbose", action="store_true", help="Show full confusion matrix and all details")
     lifecycle_parser.add_argument("--limit", type=int, default=20, help="Max recent records to show")
 
     # recover — move stuck files from processing/ back to inbox/
@@ -971,6 +1316,21 @@ def main():
 
     # failed-moves — list failed moves from database
     failed_parser = subparsers.add_parser("failed-moves", help="List failed file moves")
+
+    # llm-stats — show LLM fallback usage statistics
+    llm_stats_parser = subparsers.add_parser("llm-stats", help="Show LLM fallback usage statistics")
+
+    # corrections review — review and promote/reject correction suggestions
+    corrections_review_parser = subparsers.add_parser("corrections-review", help="Review pending correction suggestions")
+    corrections_review_parser.add_argument("--accept", type=int, default=None, help="Accept and promote suggestion by ID")
+    corrections_review_parser.add_argument("--reject", type=int, default=None, help="Reject suggestion by ID")
+
+    # 3.1 — status dashboard command
+    status_parser = subparsers.add_parser("status", help="Show pipeline status dashboard")
+
+    # 3.3 — trace command
+    trace_parser = subparsers.add_parser("trace", help="Trace a document through the pipeline")
+    trace_parser.add_argument("query", help="Filename or SHA256 hash")
 
     # run
     run_parser = subparsers.add_parser("run", help="Full workflow: scan → propose → approve")
@@ -1005,14 +1365,306 @@ def main():
         cmd_corrections(args)
     elif args.command == "correct":
         cmd_correct(args)
+    elif args.command == "notifications":
+        cmd_notifications(args)
+    elif args.command == "logs":
+        cmd_logs(args)
     elif args.command == "lifecycle":
         cmd_lifecycle(args)
     elif args.command == "recover":
         cmd_recover(args)
     elif args.command == "failed-moves":
         cmd_failed_moves(args)
+    elif args.command == "llm-stats":
+        cmd_llm_stats(args)
+    elif args.command == "corrections-review":
+        cmd_corrections_review(args)
+    elif args.command == "status":
+        cmd_status(args)
+    elif args.command == "trace":
+        cmd_trace(args)
     else:
         parser.print_help()
+
+
+def cmd_llm_stats(args) -> None:
+    """Show LLM fallback usage statistics."""
+    from app.classify.llm_fallback import get_llm_stats
+    stats = get_llm_stats()
+    if stats["total_calls"] == 0:
+        print("No LLM fallback calls recorded yet.")
+        return
+
+    print("📊 LLM Fallback Statistics")
+    print(f"  Total calls:        {stats['total_calls']}")
+    print(f"  Cloud calls:       {stats['cloud_calls']}")
+    print(f"  Local calls:       {stats['local_calls']}")
+    print(f"  Avg latency:       {stats['avg_latency_ms']:.0f} ms")
+    print(f"  Likely timeouts:   {stats['likely_timeouts']}")
+    print(f"  Feedback log:      {stats['feedback_log_entries']} entries")
+
+    if stats.get('per_model'):
+        print("\n  Per-model breakdown:")
+        for m in stats['per_model']:
+            print(f"    {m['model']:25s}  {m['count']:3d} calls  avg {m['avg_latency_ms']:.0f}ms  range [{m['min_latency_ms']}-{m['max_latency_ms']}ms]")
+
+
+def cmd_corrections_review(args) -> None:
+    """Review, accept, or reject pending correction suggestions.
+
+    Reads rule_suggestions.yaml and classification_corrections table.
+    With --accept ID: promotes a suggestion into scan_rules.yaml.
+    With --reject ID: marks a suggestion as rejected.
+    """
+    import sqlite3
+    from app.state.scan_db import DB_PATH, init_db
+    init_db()
+
+    settings = load_settings()
+    suggestions_path = settings.rule_suggestions_path
+    rules_path = settings.scan_rules_path
+
+    # Handle --accept: promote suggestion into scan_rules.yaml
+    accept_id = getattr(args, 'accept', None)
+    if accept_id is not None:
+        _promote_suggestion(accept_id, suggestions_path, rules_path)
+        return
+
+    # Handle --reject: mark suggestion as rejected
+    reject_id = getattr(args, 'reject', None)
+    if reject_id is not None:
+        _reject_suggestion(reject_id, suggestions_path)
+        return
+
+    # Default: show pending suggestions from both sources
+    print("📋 Pending Correction Suggestions:\n")
+
+    # 1. From rule_suggestions.yaml
+    suggestions = []
+    if suggestions_path.exists():
+        try:
+            import yaml
+            data = yaml.safe_load(suggestions_path.read_text(encoding="utf-8")) or {}
+            suggestions = data.get("suggestions", [])
+        except Exception:
+            pass
+
+    if suggestions:
+        for i, s in enumerate(suggestions, 1):
+            if s.get("status") == "rejected":
+                continue
+            hits = s.get("hit_count", s.get("hits", 0))
+            desc = s.get("description", s.get("suggestion", "?"))
+            last_seen = s.get("last_seen", s.get("generated_at", "?"))
+            print(f"  #{i} ({hits} hits): {desc}")
+            print(f"     Last seen: {last_seen}")
+            print(f"     Accept: scan_workflow.py corrections-review --accept {i}")
+            print(f"     Reject: scan_workflow.py corrections-review --reject {i}")
+            print()
+
+    # 2. From classification_corrections table (recent corrections)
+    rows = []
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute("""
+            SELECT id, original_doc_type, corrected_doc_type, original_person, corrected_person,
+                   original_provider, corrected_provider, org_id, correction_date,
+                   sample_keywords
+            FROM classification_corrections
+            ORDER BY correction_date DESC LIMIT 20
+        """)
+        rows = c.fetchall()
+        conn.close()
+
+        if rows:
+            print("  Recent classification corrections:\n")
+            for r in rows:
+                rd = dict(r)
+                print(f"  ID {rd['id']}: {rd['original_doc_type']} → {rd['corrected_doc_type']}")
+                if rd.get('original_person') and rd['original_person'] != 'Unknown':
+                    print(f"         person: {rd['original_person']} → {rd['corrected_person']}")
+                if rd.get('org_id'):
+                    print(f"         org: {rd['org_id']}")
+                print(f"         date: {rd['correction_date']}")
+                print()
+    except Exception as e:
+        print(f"  ⚠️ Could not read corrections table: {e}")
+
+    if not suggestions and not rows:
+        print("  No pending suggestions or corrections found.")
+
+
+def _promote_suggestion(suggestion_id: int, suggestions_path: Path, rules_path: Path) -> None:
+    """Promote a rule suggestion into scan_rules.yaml."""
+    import yaml
+
+    if not suggestions_path.exists():
+        print(f"⚠️ No suggestions file found at {suggestions_path}")
+        return
+
+    data = yaml.safe_load(suggestions_path.read_text(encoding="utf-8")) or {}
+    suggestions = data.get("suggestions", [])
+
+    if suggestion_id < 1 or suggestion_id > len(suggestions):
+        print(f"⚠️ Invalid suggestion ID: {suggestion_id}. Valid range: 1-{len(suggestions)}")
+        return
+
+    s = suggestions[suggestion_id - 1]
+    if s.get("status") == "rejected":
+        print(f"⚠️ Suggestion #{suggestion_id} was already rejected.")
+        return
+
+    # Load current scan_rules.yaml
+    if not rules_path.exists():
+        print(f"⚠️ Rules file not found at {rules_path}")
+        return
+
+    rules_data = yaml.safe_load(rules_path.read_text(encoding="utf-8"))
+
+    # Add the suggestion as a new pattern under the appropriate doc type
+    doc_type = s.get("doc_type", s.get("corrected_doc_type", "")).lower()
+    pattern = s.get("pattern", s.get("keyword", ""))
+
+    # Find the document type in rules and append the pattern
+    promoted = False
+    doc_types = rules_data.get("document_types", [])
+    for dt in doc_types:
+        if dt.get("id") == doc_type:
+            patterns = dt.get("patterns", [])
+            comment = f"# promoted from correction ID {suggestion_id}"
+            patterns.append(f"{pattern}  {comment}" if pattern else comment)
+            dt["patterns"] = patterns
+            promoted = True
+            break
+
+    if not promoted:
+        print(f"⚠️ Could not find doc_type '{doc_type}' in scan_rules.yaml")
+        return
+
+    # Save updated rules
+    rules_path.write_text(yaml.dump(rules_data, default_flow_style=False, allow_unicode=True, sort_keys=False), encoding="utf-8")
+
+    # Mark suggestion as promoted
+    s["status"] = "promoted"
+    s["promoted_at"] = datetime.now().isoformat()
+    suggestions_path.write_text(yaml.dump(data, default_flow_style=False, allow_unicode=True, sort_keys=False), encoding="utf-8")
+
+    print(f"✅ Suggestion #{suggestion_id} promoted to scan_rules.yaml")
+    print(f"   Added pattern '{pattern}' under doc_type '{doc_type}'")
+
+
+def _reject_suggestion(suggestion_id: int, suggestions_path: Path) -> None:
+    """Mark a rule suggestion as rejected."""
+    import yaml
+
+    if not suggestions_path.exists():
+        print(f"⚠️ No suggestions file found at {suggestions_path}")
+        return
+
+    data = yaml.safe_load(suggestions_path.read_text(encoding="utf-8")) or {}
+    suggestions = data.get("suggestions", [])
+
+    if suggestion_id < 1 or suggestion_id > len(suggestions):
+        print(f"⚠️ Invalid suggestion ID: {suggestion_id}. Valid range: 1-{len(suggestions)}")
+        return
+
+    s = suggestions[suggestion_id - 1]
+    s["status"] = "rejected"
+    s["rejected_at"] = datetime.now().isoformat()
+    suggestions_path.write_text(yaml.dump(data, default_flow_style=False, allow_unicode=True, sort_keys=False), encoding="utf-8")
+
+    print(f"❌ Suggestion #{suggestion_id} rejected.")
+
+
+def cmd_logs(args) -> None:
+    """View structured pipeline logs with optional filtering."""
+    import json as _json
+    settings = load_settings()
+    log_dir = settings.state_dir / "logs"
+    log_file = log_dir / "pipeline.log"
+    if not log_file.exists():
+        print(f"No log file found at {log_file}")
+        return
+
+    try:
+        lines = log_file.read_text(encoding="utf-8").strip().split("\n")
+    except OSError as e:
+        print(f"Error reading log: {e}")
+        return
+
+    entries = []
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            entry = _json.loads(line)
+        except _json.JSONDecodeError:
+            continue
+
+        if args.sha and entry.get("sha256", "") != args.sha:
+            continue
+        if args.level and entry.get("level", "") != args.level.upper():
+            continue
+        entries.append(entry)
+
+    entries = entries[-args.tail:]
+
+    if not entries:
+        print("No matching log entries found.")
+        return
+
+    for e in entries:
+        ts = e.get("ts", "?")
+        level = e.get("level", "?")
+        module = e.get("module", "?")
+        msg = e.get("msg", "?")
+        sha = e.get("sha256", "")
+        phase = e.get("phase", "")
+        duration = e.get("duration_ms", "")
+        extra = []
+        if sha:
+            extra.append(f"sha={sha[:16]}...")
+        if phase:
+            extra.append(f"phase={phase}")
+        if duration is not None:
+            extra.append(f"duration={duration}ms")
+        extra_str = f" [{', '.join(extra)}]" if extra else ""
+        print(f"{ts} {level} {module}: {msg}{extra_str}")
+
+
+def cmd_notifications(args) -> None:
+    """List notification log entries (failed by default, or all with --all)."""
+    from app.state.scan_db import list_failed_notifications, init_db
+    init_db()
+    if getattr(args, 'all', False):
+        # Show all notifications
+        import sqlite3
+        from app.state.scan_db import DB_PATH
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute('SELECT * FROM notification_log ORDER BY created_at DESC LIMIT ?', (args.limit,))
+        rows = [dict(row) for row in c.fetchall()]
+        conn.close()
+        label = "notification"
+    else:
+        rows = list_failed_notifications(limit=args.limit)
+        label = "failed notification"
+
+    if not rows:
+        print(f"No {label}s found.")
+        return
+
+    print(f"📋 {len(rows)} {label}(s):")
+    for r in rows:
+        status_icon = {"sent": "✅", "failed": "❌", "retried": "🔄"}.get(r.get('status', ''), "?")
+        print(f"  {status_icon} [{r.get('status', '?')}] attempt {r.get('attempt', '?')} | {r.get('channel', '?')} → {r.get('target', '?')[:60]}")
+        if r.get('error'):
+            print(f"     Error: {r['error'][:100]}")
+        print(f"     SHA/Batch: {r.get('sha256', '?')[:20]} | {r.get('created_at', '?')}")
 
 
 def cmd_lifecycle(args) -> None:
@@ -1054,25 +1706,61 @@ def cmd_lifecycle(args) -> None:
             for p in history["proposals"]:
                 print(f"    #{p['attempt_number']} | {p['proposed_name'][:50]} | conf: {p['confidence']:.2f} | response: {p['response']}")
     elif args.stats:
-        stats = get_lifecycle_stats()
-        print("📊 Scan Lifecycle Statistics")
+        # 2.2 — Extended stats with date filtering
+        import sqlite3
+        from app.state.scan_db import DB_PATH, init_db
+        init_db()
+        days = getattr(args, 'days', 30)
+        verbose = getattr(args, 'verbose', False)
+        
+        stats = get_lifecycle_stats(days=days)
+        print(f"📊 Scan Lifecycle Statistics (last {days} days)")
         print(f"  Total files tracked:     {stats['total_files']}")
         print(f"  Approved as proposed:    {stats['approved_as_proposed']}")
         print(f"  Overridden:             {stats['overridden']}")
         print(f"  Avg approval attempts:   {stats['avg_approval_attempts']}")
+        
+        # Auto-approved vs manual vs override vs denied
+        if stats.get('approval_breakdown'):
+            print("\n  Approval breakdown:")
+            for atype, count in stats['approval_breakdown'].items():
+                pct = (count / stats['total_files'] * 100) if stats['total_files'] else 0
+                print(f"    {atype:20s} {count:4d} ({pct:.0f}%)")
+        
         if stats.get('override_breakdown'):
             print("\n  Override breakdown:")
             for otype, count in stats['override_breakdown'].items():
                 print(f"    {otype}: {count}")
+        
+        # Per-doc-type classification accuracy
         if stats.get('doc_type_accuracy'):
             print("\n  Classification accuracy (by doc type):")
             for d in stats['doc_type_accuracy'][:8]:
                 bar = "█" * int(d['accuracy'] * 10) + "░" * (10 - int(d['accuracy'] * 10))
                 print(f"    {d['doc_type']:20s} {bar} {d['accuracy']:.0%} ({d['total']} files, {d['overridden']} overridden)")
-        if stats.get('common_misclassifications'):
-            print("\n  Top misclassifications:")
-            for m in stats['common_misclassifications'][:5]:
-                print(f"    {m['from']:20s} → {m['to']:20s} ({m['count']}x)")
+        
+        # Average classification_confidence by doc_type
+        if stats.get('confidence_by_type'):
+            print("\n  Avg classification confidence (by doc type):")
+            for d in stats['confidence_by_type'][:10]:
+                bar_len = int(d['avg_confidence'] * 20)
+                bar = "█" * bar_len + "░" * (20 - bar_len)
+                print(f"    {d['doc_type']:20s} {bar} {d['avg_confidence']:.2f} ({d['total']} files)")
+        
+        # Confusion matrix: proposed vs final doc type
+        if stats.get('confusion_matrix'):
+            print("\n  Top misclassifications (proposed → final):")
+            limit = None if verbose else 5
+            for m in (stats['confusion_matrix'] if verbose else stats['confusion_matrix'][:5]):
+                print(f"    {m['proposed']:20s} → {m['final']:20s} ({m['count']}x)")
+        
+        # Dead rules: patterns in scan_rules.yaml that have never matched
+        if stats.get('dead_rules'):
+            print("\n  ⚠️ Rules that have never matched (consider removing):")
+            for r in stats['dead_rules'][:10]:
+                print(f"    {r['rule_id']:30s} ({r['names'][:50]})")
+        elif verbose:
+            print("\n  ✅ All rules have matched at least once.")
     else:
         recent = get_recent_lifecycle(limit=args.limit)
         if not recent:

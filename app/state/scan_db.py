@@ -111,12 +111,19 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_file_index_sha ON file_index(sha256)
     ''')
 
+    c.execute('''
+        CREATE INDEX IF NOT EXISTS idx_file_index_ocr_hash ON file_index(sidecar_ocr_hash)
+    ''')
+
     # Migrate: add sidecar columns if missing (existing DBs)
     for col, ctype in [
         ("sidecar_meta", "TEXT"),
         ("sidecar_ocr_hash", "TEXT"),
         ("sidecar_has_meta", "BOOLEAN DEFAULT 0"),
         ("sidecar_has_ocr", "BOOLEAN DEFAULT 0"),
+        ("sidecar_provider", "TEXT"),
+        ("sidecar_person", "TEXT"),
+        ("sidecar_doc_type", "TEXT"),
     ]:
         try:
             c.execute(f"ALTER TABLE file_index ADD COLUMN {col} {ctype}")
@@ -209,6 +216,49 @@ def init_db():
     c.execute('''
         CREATE INDEX IF NOT EXISTS idx_proposals_sha ON scan_proposals(sha256)
     ''')
+
+    # ── Notification log (webhook retry tracking) ──
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS notification_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sha256 TEXT,
+            channel TEXT,
+            target TEXT,
+            status TEXT,
+            attempt INTEGER,
+            error TEXT,
+            payload_preview TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    c.execute('''
+        CREATE INDEX IF NOT EXISTS idx_notification_log_status ON notification_log(status)
+    ''')
+
+    c.execute('''
+        CREATE INDEX IF NOT EXISTS idx_notification_log_sha ON notification_log(sha256)
+    ''')
+
+    # ── LLM fallback classification cache ──
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS llm_classifications (
+            ocr_text_hash TEXT NOT NULL,
+            model TEXT NOT NULL,
+            doc_type TEXT,
+            person TEXT,
+            provider TEXT,
+            confidence REAL,
+            reasoning TEXT,
+            latency_ms INTEGER,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (ocr_text_hash, model)
+        )
+    ''')
+
+    # ── WAL mode for better concurrent read/write performance ──
+    c.execute("PRAGMA journal_mode=WAL")
+    c.execute("PRAGMA synchronous=NORMAL")
 
     conn.commit()
     conn.close()
@@ -612,6 +662,35 @@ def add_proposal_attempt(sha256: str, proposed_name: str, proposed_dest: str,
     return proposal_id
 
 
+def log_notification(sha256: str, channel: str, target: str, status: str,
+                    attempt: int, error: str | None = None, payload_preview: str = "") -> None:
+    """Log a notification attempt (sent/failed/retried) to notification_log table."""
+    init_db()
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('''
+        INSERT INTO notification_log (sha256, channel, target, status, attempt, error, payload_preview)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (sha256, channel, target, status, attempt, error, payload_preview))
+    conn.commit()
+    conn.close()
+
+
+def list_failed_notifications(limit: int = 50) -> list[dict]:
+    """List failed notification log entries."""
+    init_db()
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute('''
+        SELECT * FROM notification_log WHERE status = 'failed'
+        ORDER BY created_at DESC LIMIT ?
+    ''', (limit,))
+    rows = [dict(row) for row in c.fetchall()]
+    conn.close()
+    return rows
+
+
 def get_lifecycle(sha256: str) -> dict | None:
     """Get a lifecycle record by SHA256."""
     init_db()
@@ -636,42 +715,113 @@ def get_proposals(sha256: str) -> list[dict]:
     return [dict(r) for r in rows]
 
 
-def get_lifecycle_stats() -> dict:
-    """Get aggregate lifecycle statistics."""
+def get_lifecycle_stats(days: int = 0) -> dict:
+    """Get aggregate lifecycle statistics.
+    
+    Args:
+        days: If > 0, only include records from the last N days. 0 = all time.
+    """
     init_db()
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     stats = {}
+    
+    date_filter = ""
+    if days > 0:
+        date_filter = f"AND first_seen_at >= datetime('now', '-{int(days)} days')"
 
-    c.execute("SELECT COUNT(*) FROM scan_lifecycle")
+    c.execute(f"SELECT COUNT(*) FROM scan_lifecycle WHERE 1=1 {date_filter}")
     stats['total_files'] = c.fetchone()[0]
 
-    c.execute("SELECT COUNT(*) FROM scan_lifecycle WHERE override_type = 'none'")
+    c.execute(f"SELECT COUNT(*) FROM scan_lifecycle WHERE override_type = 'none' {date_filter}")
     stats['approved_as_proposed'] = c.fetchone()[0]
 
-    c.execute("SELECT COUNT(*) FROM scan_lifecycle WHERE override_type != 'none'")
+    c.execute(f"SELECT COUNT(*) FROM scan_lifecycle WHERE override_type != 'none' AND override_type != 'expired' {date_filter}")
     stats['overridden'] = c.fetchone()[0]
 
-    c.execute("""SELECT override_type, COUNT(*) FROM scan_lifecycle
-        WHERE override_type != 'none' GROUP BY override_type""")
+    c.execute(f"""SELECT override_type, COUNT(*) FROM scan_lifecycle
+        WHERE override_type != 'none' {date_filter} GROUP BY override_type""")
     stats['override_breakdown'] = dict(c.fetchall())
 
-    c.execute("""SELECT AVG(approval_attempts) FROM scan_lifecycle
-        WHERE approved_at IS NOT NULL""")
+    c.execute(f"""SELECT AVG(approval_attempts) FROM scan_lifecycle
+        WHERE approved_at IS NOT NULL {date_filter}""")
     avg = c.fetchone()[0]
     stats['avg_approval_attempts'] = round(avg, 2) if avg else 0
 
-    c.execute("""SELECT proposed_doc_type, COUNT(*),
-        SUM(CASE WHEN override_type != 'none' THEN 1 ELSE 0 END) as overrides
-        FROM scan_lifecycle GROUP BY proposed_doc_type ORDER BY overrides DESC LIMIT 10""")
+    # 2.2 — Approval breakdown: auto-approved vs manual vs override vs denied
+    c.execute(f"""SELECT 
+        CASE 
+            WHEN override_type = 'deny' THEN 'denied'
+            WHEN override_type = 'expired' THEN 'expired'
+            WHEN override_type != 'none' AND override_type IS NOT NULL THEN 'overridden'
+            WHEN approved_at IS NOT NULL AND override_type = 'none' THEN 'auto_approved'
+            ELSE 'pending'
+        END as approval_status,
+        COUNT(*) 
+        FROM scan_lifecycle WHERE 1=1 {date_filter} GROUP BY approval_status""")
+    stats['approval_breakdown'] = dict(c.fetchall())
+
+    c.execute(f"""SELECT proposed_doc_type, COUNT(*),
+        SUM(CASE WHEN override_type != 'none' AND override_type != 'expired' THEN 1 ELSE 0 END) as overrides
+        FROM scan_lifecycle WHERE 1=1 {date_filter} GROUP BY proposed_doc_type ORDER BY overrides DESC LIMIT 10""")
     stats['doc_type_accuracy'] = [{"doc_type": r[0], "total": r[1], "overridden": r[2], "accuracy": round(1 - r[2]/r[1], 2) if r[1] > 0 else 0} for r in c.fetchall()]
 
-    c.execute("""SELECT proposed_doc_type, final_doc_type, COUNT(*) as cnt
+    # 2.2 — Avg classification_confidence by doc_type
+    c.execute(f"""SELECT proposed_doc_type, AVG(classification_confidence), COUNT(*)
+        FROM scan_lifecycle WHERE classification_confidence IS NOT NULL {date_filter}
+        GROUP BY proposed_doc_type ORDER BY AVG(classification_confidence) ASC LIMIT 10""")
+    stats['confidence_by_type'] = [{"doc_type": r[0], "avg_confidence": round(r[1], 2) if r[1] else 0, "total": r[2]} for r in c.fetchall()]
+
+    # 2.2 — Confusion matrix: proposed vs final doc_type
+    c.execute(f"""SELECT proposed_doc_type, final_doc_type, COUNT(*) as cnt
         FROM scan_lifecycle
-        WHERE override_type IN ('retype', 'rename')
+        WHERE override_type IN ('retype', 'rename') {date_filter}
+        AND final_doc_type IS NOT NULL AND final_doc_type != ''
         GROUP BY proposed_doc_type, final_doc_type
-        ORDER BY cnt DESC LIMIT 10""")
-    stats['common_misclassifications'] = [{"from": r[0], "to": r[1], "count": r[2]} for r in c.fetchall()]
+        ORDER BY cnt DESC LIMIT 20""")
+    stats['confusion_matrix'] = [{"proposed": r[0], "final": r[1], "count": r[2]} for r in c.fetchall()]
+
+    # Legacy alias
+    stats['common_misclassifications'] = stats['confusion_matrix']
+
+    # 2.2 — Dead rules: rule_match_ids in scan_rules.yaml that never appear in scan_lifecycle
+    try:
+        import yaml
+        rules_path = Path(__file__).parent.parent.parent / "config" / "scan_rules.yaml"
+        if rules_path.exists():
+            with open(rules_path) as f:
+                rules_config = yaml.safe_load(f)
+            all_org_ids = set()
+            for org in rules_config.get('organizations', []):
+                org_id = org.get('id', '')
+                if org_id:
+                    all_org_ids.add(org_id)
+            # Check which org_ids have been used
+            if all_org_ids:
+                placeholders = ','.join(['?' for _ in all_org_ids])
+                c.execute(f"SELECT DISTINCT rule_match_id FROM scan_lifecycle WHERE rule_match_id IS NOT NULL AND rule_match_id != ''")
+                used_rules = set()
+                for row in c.fetchall():
+                    # rule_match_id format is typically "org_id:..." or just org_id
+                    rid = row[0]
+                    if ':' in rid:
+                        used_rules.add(rid.split(':')[0])
+                    else:
+                        used_rules.add(rid)
+                # Also check for rule: prefix
+                used_rules_with_prefix = set()
+                for r in used_rules:
+                    used_rules_with_prefix.add(r)
+                    used_rules_with_prefix.add(f"rule:{r}")
+                dead = all_org_ids - used_rules
+                dead_rules_list = []
+                for org in rules_config.get('organizations', []):
+                    if org.get('id') in dead:
+                        names = ', '.join(org.get('names', [])[:2])
+                        dead_rules_list.append({"rule_id": org['id'], "names": names})
+                stats['dead_rules'] = dead_rules_list
+    except Exception:
+        stats['dead_rules'] = []
 
     conn.close()
     return stats
@@ -736,6 +886,20 @@ def _read_sidecar(filepath: Path) -> tuple[str | None, str | None, bool, bool]:
     return meta_json, ocr_hash, has_meta, has_ocr
 
 
+def _extract_denormalized_meta(meta_json: str | None) -> tuple[str, str, str]:
+    """Extract provider, person, doc_type from sidecar_meta JSON for denormalized columns."""
+    if not meta_json:
+        return "", "", ""
+    try:
+        meta = json.loads(meta_json)
+    except (json.JSONDecodeError, TypeError):
+        return "", "", ""
+    return (
+        str(meta.get("provider", "")).strip().lower(),
+        str(meta.get("patient", "")).strip().lower(),
+        str(meta.get("doc_type", "")).strip().lower(),
+    )
+
 def build_file_index(root_path: str, extensions: set[str] | None = None) -> dict:
     """Walk QSync root and build a SHA256 index of all supported files.
     
@@ -778,8 +942,9 @@ def build_file_index(root_path: str, extensions: set[str] | None = None) -> dict
                 # File unchanged, but update sidecar data
                 meta_json, ocr_hash, has_meta, has_ocr = _read_sidecar(filepath)
                 if has_meta or has_ocr:
-                    c.execute("UPDATE file_index SET sidecar_meta = ?, sidecar_ocr_hash = ?, sidecar_has_meta = ?, sidecar_has_ocr = ? WHERE path = ?",
-                              (meta_json, ocr_hash, has_meta, has_ocr, str_path))
+                    dn_provider, dn_person, dn_doc_type = _extract_denormalized_meta(meta_json)
+                    c.execute("UPDATE file_index SET sidecar_meta = ?, sidecar_ocr_hash = ?, sidecar_has_meta = ?, sidecar_has_ocr = ?, sidecar_provider = ?, sidecar_person = ?, sidecar_doc_type = ? WHERE path = ?",
+                              (meta_json, ocr_hash, has_meta, has_ocr, dn_provider, dn_person, dn_doc_type, str_path))
                     stats["sidecars_found"] += 1
                 stats["skipped"] += 1
                 continue
@@ -789,11 +954,12 @@ def build_file_index(root_path: str, extensions: set[str] | None = None) -> dict
             
             # Read sidecar data
             meta_json, ocr_hash, has_meta, has_ocr = _read_sidecar(filepath)
+            dn_provider, dn_person, dn_doc_type = _extract_denormalized_meta(meta_json)
             if has_meta or has_ocr:
                 stats["sidecars_found"] += 1
             
-            c.execute("INSERT OR REPLACE INTO file_index (path, sha256, size, mtime, indexed_at, sidecar_meta, sidecar_ocr_hash, sidecar_has_meta, sidecar_has_ocr) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)",
-                      (str_path, sha, size, mtime, meta_json, ocr_hash, has_meta, has_ocr))
+            c.execute("INSERT OR REPLACE INTO file_index (path, sha256, size, mtime, indexed_at, sidecar_meta, sidecar_ocr_hash, sidecar_has_meta, sidecar_has_ocr, sidecar_provider, sidecar_person, sidecar_doc_type) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?, ?)",
+                      (str_path, sha, size, mtime, meta_json, ocr_hash, has_meta, has_ocr, dn_provider, dn_person, dn_doc_type))
             stats["indexed"] += 1
         except (OSError, PermissionError):
             stats["errors"] += 1
@@ -861,10 +1027,29 @@ def check_duplicate_index(sha256: str, dest_path: str | None = None,
                 seen_paths.add(entry['path'])
     
     # 4. Fuzzy match via metadata fields (>95% overlap)
+    #    Use denormalized columns (sidecar_provider, sidecar_person, sidecar_doc_type)
+    #    to narrow candidates via SQL before Python similarity loop
     if meta_fields:
         import json as _json
-        # Get all files with sidecar metadata
-        c.execute("SELECT * FROM file_index WHERE sidecar_has_meta = 1")
+        new_provider = meta_fields.get('provider', '').strip().lower()
+        new_person = meta_fields.get('patient', '').strip().lower()
+        new_doc_type = meta_fields.get('doc_type', '').strip().lower()
+
+        # Build SQL to narrow candidates using denormalized columns
+        conditions = ["sidecar_has_meta = 1"]
+        sql_params: list = []
+        if new_provider:
+            conditions.append("sidecar_provider = ?")
+            sql_params.append(new_provider)
+        if new_person:
+            conditions.append("sidecar_person = ?")
+            sql_params.append(new_person)
+        if new_doc_type:
+            conditions.append("sidecar_doc_type = ?")
+            sql_params.append(new_doc_type)
+
+        where_clause = " AND ".join(conditions)
+        c.execute(f"SELECT * FROM file_index WHERE {where_clause}", sql_params)
         for row in c.fetchall():
             if row['path'] in seen_paths:
                 continue
@@ -874,7 +1059,7 @@ def check_duplicate_index(sha256: str, dest_path: str | None = None,
                 existing_meta = _json.loads(row['sidecar_meta'])
             except (_json.JSONDecodeError, TypeError):
                 continue
-            
+
             # Compare fields
             fields_to_check = ['provider', 'date', 'patient', 'doc_type', 'description']
             matching = 0
@@ -887,8 +1072,38 @@ def check_duplicate_index(sha256: str, dest_path: str | None = None,
                     if new_val == existing_val:
                         matching += 1
                     elif new_val in existing_val or existing_val in new_val:
-                        matching += 0.5  # Partial match
-            
+                        matching += 0.5
+
+            if total > 0 and (matching / total) >= fuzzy_threshold:
+                entry = dict(row)
+                entry['match_type'] = 'fuzzy_meta'
+                entry['match_score'] = matching / total
+                matches.append(entry)
+                seen_paths.add(entry['path'])
+
+        # Also check rows with sidecar_meta but no denormalized match (fallback)
+        c.execute("SELECT * FROM file_index WHERE sidecar_has_meta = 1 AND (sidecar_provider IS NULL OR sidecar_provider = '')")
+        for row in c.fetchall():
+            if row['path'] in seen_paths:
+                continue
+            if not row['sidecar_meta']:
+                continue
+            try:
+                existing_meta = _json.loads(row['sidecar_meta'])
+            except (_json.JSONDecodeError, TypeError):
+                continue
+            fields_to_check = ['provider', 'date', 'patient', 'doc_type', 'description']
+            matching = 0
+            total = 0
+            for field in fields_to_check:
+                new_val = meta_fields.get(field, '').strip().lower()
+                existing_val = str(existing_meta.get(field, '')).strip().lower()
+                if new_val and existing_val:
+                    total += 1
+                    if new_val == existing_val:
+                        matching += 1
+                    elif new_val in existing_val or existing_val in new_val:
+                        matching += 0.5
             if total > 0 and (matching / total) >= fuzzy_threshold:
                 entry = dict(row)
                 entry['match_type'] = 'fuzzy_meta'

@@ -135,6 +135,8 @@ def deny_proposal(settings: Settings, sha256: str, reason: str) -> dict[str, Any
 
 
 def _unique_path(path: Path) -> Path:
+    """Find a unique path, truncating filename if full path exceeds 240 chars."""
+    path = _truncate_long_path(path)
     if not path.exists():
         return path
     stem = path.stem
@@ -142,9 +144,42 @@ def _unique_path(path: Path) -> Path:
     index = 2
     while True:
         candidate = path.with_name(f"{stem}_v{index}{suffix}")
+        candidate = _truncate_long_path(candidate)
         if not candidate.exists():
             return candidate
         index += 1
+
+
+def _truncate_long_path(path: Path) -> Path:
+    """Truncate filename if full path exceeds 240 chars (Windows MAX_PATH 260 - 20 buffer).
+
+    If the path is too long, truncates the description segment in the filename
+    and adds a '…' marker. Logs the truncation.
+    Returns the (possibly truncated) path.
+    """
+    import logging
+    path_str = str(path)
+    if len(path_str) <= 240:
+        return path
+
+    logger = logging.getLogger(__name__)
+    parent_str = str(path.parent)
+    max_filename_len = 240 - len(parent_str) - 1  # -1 for the separator
+    if max_filename_len < 10:
+        logger.warning(f"Path too long ({len(path_str)} chars), parent dir alone is {len(parent_str)} chars: {path_str}")
+        return path
+
+    original_name = path.name
+    stem = path.stem
+    suffix = path.suffix
+    available = max_filename_len - len(suffix) - 1  # -1 for … marker
+    if available < 5:
+        truncated_stem = stem[:max_filename_len - len(suffix)]
+    else:
+        truncated_stem = stem[:available] + "…"
+    new_path = path.parent / f"{truncated_stem}{suffix}"
+    logger.warning(f"Path truncated from {len(path_str)} to {len(str(new_path))} chars: {original_name} → {new_path.name}")
+    return new_path
 
 
 def _create_sidecars_for_approved(settings: Settings, sha256: str, target_path: Path) -> list[Path]:

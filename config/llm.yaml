@@ -1,0 +1,31 @@
+llm_fallback:
+  enabled: true
+
+  # Cloud LLM (DEFAULT — used for all low-confidence classifications)
+  cloud:
+    enabled: true
+    model: "glm-5.1:cloud"
+    endpoint: "http://localhost:11434/api/chat"
+    timeout_seconds: 30
+    max_retries: 1
+
+  # Local LLM (opt-in for PII-sensitive docs, OFF by default)
+  local:
+    enabled: false  # Disabled by default — set true to use local first for PII
+    model: "qwen3-vl:8b"
+    endpoint: "http://localhost:11434/api/chat"
+    timeout_seconds: 5  # Short timeout for local
+    max_retries: 0
+
+  # Doc types that should NEVER be sent to cloud (even if local fails)
+  sensitive_doc_types_skip_cloud:
+    - "identity_card"
+
+  # Trigger conditions
+  trigger:
+    min_confidence: 0.70  # Fire when classification_confidence < this
+    type_gap: 0.10  # Or when top 2 candidate types are within this gap
+
+  # Trust model
+  auto_approve_from_llm: false  # Never auto-approve based on LLM alone (for first month)
+  llm_lift_confidence: 0.05  # How much a confirming LLM result lifts classification_confidence

@@ -38,12 +38,75 @@ from app.utils import SUPPORTED_EXTENSIONS
 
 
 def post_hook_payload(url: str, secret: str, payload: dict) -> dict:
-    request = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), method="POST")
-    request.add_header("Authorization", f"Bearer {secret}")
-    request.add_header("Content-Type", "application/json")
-    with urllib.request.urlopen(request, timeout=30) as response:
-        body = response.read().decode("utf-8")
-        return json.loads(body) if body else {"ok": True}
+    """POST webhook payload with 3 retries and exponential backoff (1s, 4s, 16s).
+    Logs every attempt. On final failure, writes to notification_log table.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    max_retries = 3
+    backoff_base = 1  # seconds; delays: 1, 4, 16
+    payload_preview = json.dumps(payload)[:200]
+    last_error = None
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            request = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), method="POST")
+            request.add_header("Authorization", f"Bearer {secret}")
+            request.add_header("Content-Type", "application/json")
+            with urllib.request.urlopen(request, timeout=30) as response:
+                body = response.read().decode("utf-8")
+                result = json.loads(body) if body else {"ok": True}
+                logger.info("Webhook sent", extra={
+                    "phase": "webhook",
+                    "duration_ms": attempt,
+                    "sha256": payload.get("metadata", {}).get("batchId", ""),
+                })
+                # Log successful send
+                _log_notification(
+                    sha256=payload.get("metadata", {}).get("batchId", ""),
+                    channel="webhook",
+                    target=url,
+                    status="sent" if attempt == 1 else "retried",
+                    attempt=attempt,
+                    error=None,
+                    payload_preview=payload_preview,
+                )
+                return result
+        except Exception as exc:
+            last_error = str(exc)
+            delay = backoff_base ** (2 ** (attempt - 1))  # 1, 4, 16
+            logger.warning(f"Webhook attempt {attempt}/{max_retries} failed: {exc}", extra={
+                "phase": "webhook",
+                "sha256": payload.get("metadata", {}).get("batchId", ""),
+            })
+            if attempt < max_retries:
+                time.sleep(delay)
+
+    # All retries exhausted — log final failure
+    logger.error(f"Webhook failed after {max_retries} retries: {last_error}", extra={
+        "phase": "webhook",
+        "sha256": payload.get("metadata", {}).get("batchId", ""),
+    })
+    _log_notification(
+        sha256=payload.get("metadata", {}).get("batchId", ""),
+        channel="webhook",
+        target=url,
+        status="failed",
+        attempt=max_retries,
+        error=last_error,
+        payload_preview=payload_preview,
+    )
+    raise RuntimeError(f"Webhook failed after {max_retries} retries: {last_error}")
+
+
+def _log_notification(sha256: str, channel: str, target: str, status: str,
+                     attempt: int, error: str | None, payload_preview: str) -> None:
+    """Write a notification attempt to the notification_log table."""
+    try:
+        from app.state.scan_db import log_notification
+        log_notification(sha256, channel, target, status, attempt, error, payload_preview)
+    except Exception:
+        pass  # Don't fail the caller if DB logging fails
 
 
 def build_openclaw_payload(settings: Settings, batch_id: str, files: list[str]) -> dict:

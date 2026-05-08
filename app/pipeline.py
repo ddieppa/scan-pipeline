@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -21,6 +21,10 @@ from app.utils import SUPPORTED_EXTENSIONS, normalize_spaces, scan_date_from_mti
 
 
 def process_batch(settings: Settings, files: list[Path], batch_id: str | None = None) -> dict[str, Any]:
+    # ── Setup structured logging ──
+    from app.logging_config import setup_logging
+    setup_logging(settings.state_dir)
+
     file_type_config = load_yaml_config(settings.file_types_path)
     notification_config = load_yaml_config(settings.notifications_path)
     allowed_duplicate_exts = {ext.lower() for ext in file_type_config.get("duplicates", {}).get("indexed_extensions", [])}
@@ -70,7 +74,7 @@ def process_batch(settings: Settings, files: list[Path], batch_id: str | None = 
         use_parallel = os.environ.get("SCAN_PARALLEL", "").strip() == "1"
         if use_parallel and max_workers > 1:
             try:
-                with ProcessPoolExecutor(max_workers=max_workers) as executor:
+                with ThreadPoolExecutor(max_workers=min(4, max_workers)) as executor:
                     future_map = {
                         executor.submit(_process_single_file, str(file_path), str(settings.scan_rules_path), json.dumps(file_type_config)): file_path
                         for file_path in filtered_files
@@ -80,7 +84,7 @@ def process_batch(settings: Settings, files: list[Path], batch_id: str | None = 
             except Exception as exc:
                 # ProcessPoolExecutor can hang/deadlock in WSL — fall back to sequential
                 import logging
-                logging.warning(f"ProcessPoolExecutor failed ({exc}), falling back to sequential processing")
+                logging.warning(f"ThreadPoolExecutor failed ({exc}), falling back to sequential processing")
                 for file_path in filtered_files:
                     results.append(_process_single_file(
                         str(file_path),
@@ -95,6 +99,10 @@ def process_batch(settings: Settings, files: list[Path], batch_id: str | None = 
                     json.dumps(file_type_config),
                 ))
 
+    # 1.6 — Per-batch dedup cache: avoid redundant check_duplicate_index() calls
+    # Keyed on (provider, person, date_bucket) — same neighborhood matches get cached
+    _dedup_cache: dict[tuple, list[dict]] = {}
+
     for i, result in enumerate(results, start=1):
         result["id"] = i
         if result.get("status") != "success":
@@ -102,8 +110,18 @@ def process_batch(settings: Settings, files: list[Path], batch_id: str | None = 
         source = Path(result["path"])
         proposed_dest = result.get("proposedDest", "")
         restrict_root = (settings.qsync_root / proposed_dest).resolve() if proposed_dest else None
-        # Check duplicates using SQLite index (fast) or DuplicateIndex (slow)
-        if use_sql_index and result.get("sha256"):
+
+        # 1.6 — Build cache key from (provider, person, date_bucket)
+        _provider = (result.get("provider", "") or "").strip().lower()
+        _person = (result.get("person", "") or "").strip().lower()
+        _scan_date = result.get("scanDate", "") or ""
+        _date_bucket = _scan_date[:7] if len(_scan_date) >= 7 else "unknown"  # YYYY-MM bucket
+        _cache_key = (_provider, _person, _date_bucket)
+
+        # Check dedup cache first (1.6)
+        if _cache_key in _dedup_cache:
+            sql_dups = _dedup_cache[_cache_key]
+        else:
             # Build sidecar data for fuzzy matching
             _ocr_hash = None
             _meta_fields = None
@@ -130,6 +148,31 @@ def process_batch(settings: Settings, files: list[Path], batch_id: str | None = 
                 ocr_hash=_ocr_hash,
                 meta_fields=_meta_fields,
             )
+            # 1.6 — Cache neighborhood hits for same (provider, person, date_bucket)
+            # Only cache fuzzy matches; exact SHA256 matches are file-specific
+            _fuzzy_dups = [d for d in sql_dups if d.get("match_type") in ("fuzzy_ocr", "fuzzy_meta")]
+            if _fuzzy_dups:
+                _dedup_cache[_cache_key] = _fuzzy_dups
+
+        # Check duplicates using SQLite index (fast) or DuplicateIndex (slow)
+        if use_sql_index and result.get("sha256"):
+            # Always do an exact SHA256 check per-file (not cacheable),
+            # then add cached fuzzy hits for this neighborhood
+            _exact_dups = []
+            if not any(d.get("match_type") == "exact" and d["sha256"] == result["sha256"] for d in sql_dups if isinstance(sql_dups, list)):
+                from app.state.scan_db import check_duplicate_index as _cdi
+                _exact_check = _cdi(result["sha256"], str(settings.qsync_root / proposed_dest) if proposed_dest else None)
+                _exact_dups = [d for d in _exact_check if d.get("match_type") == "exact"]
+            all_dups = _exact_dups + [d for d in (sql_dups if isinstance(sql_dups, list) else []) if d.get("match_type") != "exact"]
+            # Deduplicate by path
+            _seen_paths = set()
+            _unique_dups = []
+            for d in all_dups:
+                if d["path"] not in _seen_paths:
+                    _unique_dups.append(d)
+                    _seen_paths.add(d["path"])
+            sql_dups = _unique_dups
+
             result["contentDuplicates"] = [d["path"] for d in sql_dups if d.get("path")]
             result["duplicateMatchTypes"] = [d.get("match_type", "exact") for d in sql_dups]
             result["duplicateMatchScores"] = {d["path"]: d.get("match_score") for d in sql_dups if d.get("match_score") is not None}
@@ -182,6 +225,16 @@ def process_batch(settings: Settings, files: list[Path], batch_id: str | None = 
             has_dup = bool(result.get("contentDuplicates") or result.get("duplicatesAnywhere"))
             ambiguous = result.get("ambiguous")
             needs_side = result.get("needsSideConfirmation", False)
+
+            # ── Empty-OCR guard: if extracted text is too short or quality too low, never auto-approve ──
+            ocr_text_len = len(result.get("ocrSample", ""))
+            text_quality = result.get("textQuality", 0)
+            if ocr_text_len < 20 or text_quality < 0.2:
+                result["ocrFailed"] = True
+                result["needsManualReview"] = True
+                result["autoApproved"] = False
+                result["_auto_approve_note"] = f"OCR guard: text_len={ocr_text_len}, quality={text_quality:.2f}"
+                continue
             # Conditions for auto-approve:
             # 1. Classification confidence >= threshold
             # 2. Doc type is in safe list (or safe_types is empty = all safe)
