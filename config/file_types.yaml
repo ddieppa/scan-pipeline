@@ -1,0 +1,31 @@
+version: 1
+supported_extensions:
+  - ".pdf"
+  - ".jpg"
+  - ".jpeg"
+  - ".png"
+  - ".tif"
+  - ".tiff"
+  - ".docx"
+  - ".xlsx"
+pdf:
+  inspect_pages: 10
+  min_text_chars_before_skip_ocr: 20
+  render_dpi: 200
+images:
+  max_ocr_chars: 20000
+docx:
+  max_paragraphs: 400
+  max_table_rows: 200
+xlsx:
+  max_sheets: 8
+  max_rows_per_sheet: 300
+duplicates:
+  indexed_extensions: [".pdf", ".jpg", ".jpeg", ".png", ".tif", ".tiff", ".docx", ".xlsx"]
+worker_pool:
+  default_max_workers: 4
+watcher:
+  debounce_seconds: 3.0
+  batch_window_seconds: 5.0
+  stable_poll_interval_seconds: 1.0
+  stable_checks: 2

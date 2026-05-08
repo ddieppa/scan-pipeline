@@ -1,0 +1,669 @@
+version: 2
+default_destination: "03-Resources/Scans/"
+current_year: 2026
+
+# ============================================================
+# AUTO-APPROVE SETTINGS
+# ============================================================
+auto_approve:
+  enabled: true
+  # Minimum classification_confidence to auto-approve
+  threshold: 0.90
+  # Doc types that should NEVER be auto-approved (always require manual review)
+  never_auto_approve:
+    - identity_card
+    - business
+  # Doc types that are safe to auto-approve if confidence is high
+  safe_types:
+    - lab_requisition
+    - medical_record
+    - prescription
+    - dental
+    - eye_exam
+    - bill
+    - receipt
+
+# ============================================================
+# PEOPLE — name aliases for person detection
+# ============================================================
+people:
+  aliases:
+    Daniel: ["daniel dieppa", "dieppa, daniel", "daniel"]
+    Natalie: ["natalie dieppa", "dieppa, natalie", "natalie", "nany", "natalie jomunoz"]
+    Isabella: ["isabella dieppa", "dieppa, isabella", "isabella", "bella"]
+    Nala: ["nala", "nala dieppa"]
+    Grisell: ["grisell", "grisell dieppa"]
+    Pedro: ["pedro", "pedro dieppa", "pedrito"]
+    Yanyel: ["yanyel", "yanyel dieppa"]
+    Ivis: ["ivis", "ivis dieppa"]
+
+# ============================================================
+# ORGANIZATIONS — providers and companies
+# ============================================================
+organizations:
+  # --- Daniel's providers ---
+  - id: silver-palms-dentistry
+    names: ["Silver Palms Dentistry", "Silver Palms"]
+    category: Dental
+    person: Daniel
+    folder_alias: SilverPalmsDentistry
+    destination: "02-Areas/Family/Daniel/Health/Dental/"
+  - id: baptist-health
+    names: ["Baptist Health", "Baptist Hospital", "West Kendall Baptist Hospital", "Baptist Health South Florida", "Baptist Emergency Care", "Baptist of Miami", "Baptist Urgent Care"]
+    category: Hospital
+    person: Daniel
+    folder_alias: BaptistHealth
+    destination: "02-Areas/Family/Daniel/Health/Hospitalization/"
+  - id: florida-blue
+    names: ["Florida Blue", "BlueOptions"]
+    category: Insurance
+    person: Daniel
+    folder_alias: FloridaBlue
+    destination: "02-Areas/Family/Daniel/Insurance/"
+  - id: cigna
+    names: ["Cigna", "Cigna Health"]
+    category: Insurance
+    person: ""  # Whole family — person detected from OCR text
+    folder_alias: Cigna
+  - id: quest-diagnostics
+    names: ["Quest Diagnostics", "Quest"]
+    category: Lab
+    person: null
+    folder_alias: QuestDiagnostics
+    destination: null
+    # Quest is a family-wide lab — person and destination come from the document content
+  - id: alta-medica
+    names: ["AltaMedica", "Alta Medica"]
+    category: Medical
+    person: Daniel
+    destination: "02-Areas/Family/Daniel/Health/"
+  - id: walgreens
+    names: ["Walgreens", "Walgreens Pharmacy"]
+    category: Pharmacy
+    person: ""  # Pharmacy serves whole family — person detected from OCR text
+  - id: cvs
+    names: ["CVS", "CVS Pharmacy", "CVS Caremark"]
+    category: Pharmacy
+    person: ""  # Pharmacy serves whole family — person detected from OCR text
+  - id: publix-pharmacy
+    names: ["Publix Pharmacy", "Publix"]
+    category: Pharmacy
+    person: ""  # Pharmacy serves whole family — person detected from OCR text
+  - id: felix-guzman
+    names: ["Felix E Guzman MD PA", "Felix Guzman", "Guzman MD", "mycw142.ecwcloud.com"]
+    category: PrimaryCare
+    person: Daniel
+    destination: "02-Areas/Family/Daniel/Health/"
+
+  # --- Natalie's providers ---
+  - id: marimon
+    names: ["Marimon", "Marimon Medical"]
+    category: Medical
+    person: Natalie
+    destination: "02-Areas/Family/Natalie/Health/"
+  - id: baptist-health-natalie
+    names: ["Baptist Emergency Care at Country Walk", "Baptist of Miami", "West Kendall Baptist Hospital"]
+    category: Hospital
+    person: Natalie
+    folder_alias: BaptistHealth
+    destination: "02-Areas/Family/Natalie/Health/Hospitalization/"
+  - id: doral-er
+    names: ["Doral ER", "Doral Emergency Room", "Doral Emergency"]
+    category: Hospital
+    person: Natalie
+    folder_alias: DoralER
+    destination: "02-Areas/Family/Natalie/Health/Hospitalization/"
+  - id: florida-woman-care-laboratory
+    names: ["Florida Woman Care Laboratory", "Florida Woman Care", "FLORIDA WOMAN CARE LABORATORY, LLC"]
+    category: Lab
+    person: Natalie
+    folder_alias: FloridaWomanCareLaboratory
+    destination: "02-Areas/Family/Natalie/Health/Lab/"
+
+  # --- Isabella's providers ---
+  - id: jcs-ballet-academy
+    names: ["JCS Ballet Academy", "JCS Ballet", "JCS"]
+    category: Activities
+    person: Isabella
+    folder_alias: JCSBalletAcademy
+    destination: "02-Areas/Family/Isabella/Activities/"
+  - id: nicklaus-childrens
+    names: ["Nicklaus Children's Hospital", "Nicklaus", "Nicklaus Children's Pediatric Specialists", "Miami Childrens Hospital", "Miami Children's", "Miami Childrens"]
+    category: Hospital
+    person: Isabella
+    folder_alias: NicklausChildrensHospital
+    destination: "02-Areas/Family/Isabella/Health/Hospitalization/"
+  - id: kendall-pediatric
+    names: ["Kendall Pediatric Partners"]
+    category: Pediatric
+    person: Isabella
+    folder_alias: KendallPediatricPartners
+    destination: "02-Areas/Family/Isabella/Health/"
+  - id: bagnell-brain-center
+    names: ["Bagnell Brain Center", "Bagnell", "Bagnell Brain"]
+    category: BehavioralHealth
+    person: Isabella
+    folder_alias: BagnellBrainCenter
+    destination: "02-Areas/Family/Isabella/Health/Providers/Bagnell Brain Center/"
+  - id: more-than-words
+    names: ["MoreThanWordsTherapy", "More Than Words Therapy", "MoreThanWords", "More Than Words"]
+    category: BehavioralHealth
+    person: Isabella
+    folder_alias: MoreThanWordsTherapy
+    destination: "02-Areas/Family/Isabella/Health/Providers/MoreThanWordsTherapy/"
+  - id: santana-mental-health
+    names: ["Santana Mental Health Services", "Santana Mental Health", "Santana MHS", "Santana"]
+    category: BehavioralHealth
+    person: Isabella
+    folder_alias: SantanaMentalHealthServices
+    destination: "02-Areas/Family/Isabella/Health/Providers/Santana Mental Health Services/"
+  - id: beyond-the-scale
+    names: ["Beyond the Scale Therapy", "Beyond the Scale", "BeyondTheScale"]
+    category: BehavioralHealth
+    person: Isabella
+    folder_alias: BeyondTheScaleTherapy
+    destination: "02-Areas/Family/Isabella/Health/Providers/Beyond the Scale Therapy/"
+  - id: dental-group-isabella
+    names: ["Dental Group", "The Dental Group"]
+    category: Dental
+    person: Isabella
+    folder_alias: DentalGroup
+    destination: "02-Areas/Family/Isabella/Health/Dental/Records/"
+  - id: miami-childrens-dental
+    names: ["Miami Childrens Dental", "Miami Children's Dental"]
+    category: Dental
+    person: Isabella
+    destination: "02-Areas/Family/Isabella/Health/Dental/Records/"
+  - id: costco-optical
+    names: ["Costco Optical", "Costco Vision", "Costco"]
+    category: Vision
+    person: ""  # Vision provider — person detected from OCR text
+    folder_alias: CostcoOptical
+
+  # --- Shared/family ---
+  - id: miami-dade-animal-services
+    names: ["Miami-Dade Animal Services", "Animal Services"]
+    category: Pets
+    person: Nala
+    destination: "02-Areas/Pets/Nala/Records/"
+  - id: allstate
+    names: ["Allstate"]
+    category: AutoInsurance
+    person: Daniel
+    destination: "02-Areas/Family/Daniel/Insurance/Auto/"
+  - id: nandd-tek-solutions
+    names: ["N&D TEK SOLUTIONS LLC", "N&D TEK SOLUTIONS", "ND Tek Solutions", "NAndD Tek Solutions"]
+    category: Business
+    person: Daniel
+    destination: "02-Areas/Business/ND_Tek_Solutions/"
+    folder_alias: "ND_Tek_Solutions"  # Canonical folder name in QSync
+  - id: nandd-tek-minds
+    names: ["N&D TEK MINDS LLC", "N&D TEK MINDS", "ND Tek Minds", "NAndD Tek Minds"]
+    category: Business
+    person: Daniel
+    destination: "02-Areas/Business/ND_Tek_Minds/"
+    folder_alias: "ND_Tek_Minds"  # Canonical folder name in QSync
+  - id: icodecaliber-inc
+    names: ["IcodeCaliber Inc", "IcodeCaliber", "iCodeCaliber"]
+    category: Business
+    person: Daniel
+    destination: "02-Areas/Business/IcodeCaliber_Inc/"
+    folder_alias: "IcodeCaliber_Inc"
+  - id: it-development-experts
+    names: ["IT Development Experts Inc", "IT Development Experts", "IT DEVELOPMENT EXPERTS INC", "IT DEVELOPMENT EXPERTS"]
+    category: Business
+    person: Daniel
+    destination: "02-Areas/Business/IT_Development_Experts/"
+    folder_alias: "IT_Development_Experts"
+  - id: bank-of-america
+    names: ["Bank of America", "BankOfAmerica", "BofA", "BOA"]
+    category: Business
+    person: ""  # Business bank — company detected from OCR text
+    destination: "02-Areas/Business/"
+  - id: sunbiz-fl-dept-state
+    names: ["Florida Department of State", "Division of Corporations", "Sunbiz", "sunbiz.org", "FL Division of Corporations"]
+    category: Business
+    person: Daniel
+    destination: "02-Areas/Business/"
+  - id: expeditors
+    names: ["Expeditors", "Expeditors International"]
+    category: Employment
+    person: Natalie
+    destination: "04-Archives/Employment/Expeditors/"
+
+# ============================================================
+# DOCUMENT TYPES — classification patterns
+# ============================================================
+document_types:
+  identity_card:
+    patterns: ["driver license", "driver's license", "passport", "social security", "ssn", "naturalization certificate", "birth certificate", "carnet identidad", "identification card", "id card", "state id"]
+    filename_template: "{date}_{doc_label}_{person}_EXP-{exp_date}.{ext}"
+    labels:
+      default: "IDCard"
+      DriverLicense: "DriverLicense"
+      Passport: "Passport"
+      SSN: "SSN"
+      BirthCertificate: "BirthCertificate"
+      NaturalizationCert: "NaturalizationCert"
+
+  lab_requisition:
+    patterns: ["ereq", "e-req", "requisition", "quest diagnostics", "labcorp", "specimen collection", "fasting", "tests ordered", "test ordered", "ordering physician", "collection date", "patient preparation"]
+    filename_template: "{date}_{provider}_LabRequisition_{person}.{ext}"
+    labels:
+      default: "LabRequisition"
+
+  medical_record:
+    patterns: ["medical records", "clinical summary", "discharge summary", "discharge instruction", "visit summary", "encounter summary", "hospitalization", "surgery", "lab results", "lab report", "microbiology", "urine culture", "kidney", "flowsheet", "mrn", "ultrasound", "ob report", "ob 1st tri", "ruq us", "pelvic us", "ectopic pregnancy", "miscarriage", "threatened miscarriage", "laparoscopy", "operative report", "pathology report", "radiology report", "imaging report", "chest ct", "ct scan", "x-ray", "school/work excuse", "work excuse", "return to work", "return to school", "certificate to return"]
+    filename_template: "{date}_{provider}_{doc_label}_{person}.{ext}"
+    labels:
+      default: "MedicalRecord"
+      Surgery: "SurgerySummary"
+      LabResults: "LabResults"
+      Discharge: "DischargeSummary"
+      Ultrasound: "UltrasoundReport"
+      Imaging: "ImagingReport"
+      Flowsheet: "Flowsheet"
+      Ectopic: "EctopicPregnancy"
+      Miscarriage: "MiscarriageRecord"
+      WorkExcuse: "WorkExcuse"
+
+  prescription:
+    patterns: ["prescription", "rx", "medication", "pharmacy"]
+    filename_template: "{date}_{provider}_Rx_{medication}_{person}.{ext}"
+
+  eye_exam:
+    patterns: ["eye exam", "eye prescription", "vision exam", "optometry", "glasses prescription"]
+    filename_template: "{date}_{provider}_EyeExam_{person}.{ext}"
+
+  school_entry:
+    patterns: ["school entry exam", "school physical", "immunization record", "vaccination record", "shot record", "form 680", "form 680a", "dh 680"]
+    filename_template: "{date}_{provider}_SchoolEntryExam_{person}.{ext}"
+
+  report_card:
+    patterns: ["report card", "grade report", "progress report", "interim report"]
+    filename_template: "{date}_ReportCard_{grade}_{person}.{ext}"
+
+  standardized_test:
+    patterns:
+      - 'standardized test'
+      - 'assessment test'
+      - 'state assessment'
+      - 'i-Ready'
+      - 'iReady'
+    filename_template: "{date}_{doc_label}_{person}.{ext}"
+
+  activity_agreement:
+    patterns: ["recital agreement", "recital", "dance recital", "ballet recital", "activity agreement", "participation agreement", "costume package", "enrollment agreement", "registration form"]
+    filename_template: "{date}_{provider}_{doc_label}_{person}.{ext}"
+    labels:
+      default: "RecitalAgreement"
+      Enrollment: "EnrollmentAgreement"
+      Registration: "RegistrationForm"
+
+  religious_record:
+    patterns: ["baptism", "baptismal", "first communion", "religious certificate", "presentation certificate", "bar mitzvah", "bat mitzvah"]
+    filename_template: "{date}_{doc_label}_{person}.{ext}"
+
+  vehicle:
+    patterns: ["registration renewal", "vehicle registration", "title transfer", "lease end", "odometer", "license plate", "tag renewal", "decal", "vin"]
+    filename_template: "{date}_{doc_label}_{person}.{ext}"
+    labels:
+      default: "VehicleRegistration"
+      RegistrationRenewal: "RegistrationRenewal"
+      LeaseEnd: "LeaseEnd"
+      TitleTransfer: "TitleTransfer"
+
+  employment:
+    patterns: ["employee evaluation", "employee performance evaluation", "employee recognition", "on the spot award", "employment", "pay stub", "paystub", "w2", "w-2", "1099", "offer letter", "termination", "resignation"]
+    filename_template: "{date}_{provider}_{doc_label}_{person}.{ext}"
+    labels:
+      default: "Employment"
+      Evaluation: "EmployeeEvaluation"
+      Recognition: "EmployeeRecognition"
+
+  bill:
+    patterns: ["bill", "invoice", "billed", "billing", "statement", "amount due", "balance due", "patient balance"]
+    filename_template: "{date}_{provider}_{doc_label}_{person}.{ext}"
+    labels:
+      default: "Bill"
+      Dental: "DentalBill"
+      Hospital: "HospitalBill"
+      Lab: "LabBill"
+      Vision: "VisionBill"
+
+  receipt:
+    patterns: ["receipt", "payment receipt", "payment confirmation", "paid", "payment received"]
+    filename_template: "{date}_{provider}_Receipt_{person}.{ext}"
+
+  insurance:
+    patterns: ["eob", "explanation of benefits", "coverage", "claim", "benefits", "cobra", "aetna", "insurance approval", "prior authorization"]
+    filename_template: "{date}_{provider}_EOB_{person}.{ext}"
+
+  referral:
+    patterns: ["referral", "referred by", "referring physician", "authorization", "approval", "pre-authorization"]
+    filename_template: "{date}_{provider}_Referral_{person}.{ext}"
+
+  home:
+    patterns: ["homestead exemption", "property tax", "mortgage statement", "home insurance", "refinance", "remodeling", "survey", "furniture", "water bill"]
+    filename_template: "{date}_{doc_label}_{person}.{ext}"
+
+  bank_statement:
+    patterns: ["account number", "routing number", "statement period", "closing date", "account summary", "previous balance", "payments and other credits", "purchases and other charges", "fees charged", "finance charge", "cardholder activity", "posting date", "transaction date", "available credit", "minimum payment due", "new balance total", "payment due date", "credit available", "cash advance", "reward summary", "cash rewards", "total payments", "total purchases"]
+    filename_template: "{date}_{provider}_{doc_label}_{person}.{ext}"
+    labels:
+      default: "BankStatement"
+      BusinessChecking: "BusinessChecking"
+      BusinessCreditCard: "BusinessCreditCard"
+      PersonalChecking: "PersonalChecking"
+      PersonalSavings: "PersonalSavings"
+
+  business:
+    patterns: ["ein", "s-corp", "s corporation", "s corporation election", "form 2553", "cp 261", "cp261", "llc", "incorporation", "bank statement", "irs documentation", "internal revenue service", "department of the treasury", "profit and loss", "financial statement", "tax return", "business checking", "business account", "checking account statement", "credit limit", "available credit", "new balance", "minimum payment due", "payment due date", "closing date", "days in billing period", "billing period", "division of corporations", "department of state", "sunbiz", "sunbiz.org", "annual report", "document number", "tracking number"]
+    filename_template: "{date}_{doc_label}_{provider}.{ext}"
+    labels:
+      default: "Business"
+      BusinessChecking: "BusinessChecking"
+      BusinessCreditCard: "BusinessCreditCard"
+      SCorp: "SCorporationElection"
+      EIN: "EINConfirmation"
+      GovernmentFiling: "GovernmentFiling"
+
+  personal_finance:
+    patterns: ["personal bank statement", "personal credit card", "personal savings"]
+    filename_template: "{date}_{doc_label}_{person}.{ext}"
+
+# ============================================================
+# CATEGORY ROUTING — destination templates by category
+# ============================================================
+category_routing:
+  # Health categories → person-specific Health folders
+  Dental:
+    template: "02-Areas/Family/{person}/Health/Dental/Records/"
+  DentalReferral:
+    template: "02-Areas/Family/{person}/Health/Dental/Referrals/"
+  Vision:
+    template: "02-Areas/Family/{person}/Health/Vision/Eye-Exams/"
+  VisionBill:
+    archive_template: "04-Archives/Finance/Medical_Bills/{person}/{year}/"
+  Hospital:
+    template: "02-Areas/Family/{person}/Health/Hospitalization/"
+  Pediatric:
+    template: "02-Areas/Family/{person}/Health/"
+  BehavioralHealth:
+    template: "02-Areas/Family/{person}/Health/Providers/{org_name}/"
+  PrimaryCare:
+    template: "02-Areas/Family/{person}/Health/"
+  Medical:
+    template: "02-Areas/Family/{person}/Health/"
+  Lab:
+    template: "02-Areas/Family/{person}/Health/"
+  LabRequisition:
+    template: "02-Areas/Family/{person}/Health/"
+  Pharmacy:
+    template: "02-Areas/Family/{person}/Health/Prescriptions/"
+  Prescription:
+    template: "02-Areas/Family/{person}/Health/Prescriptions/"
+  Lab:
+    template: "02-Areas/Family/{person}/Health/Lab/"
+
+  # Identity → Legal/Identity
+  Identity:
+    template: "02-Areas/Legal/Identity/{person}/"
+
+  # Insurance
+  Insurance:
+    archive_template: "04-Archives/Finance/Insurance/{person}/{year}/"
+  AutoInsurance:
+    template: "02-Areas/Family/{person}/Insurance/Auto/"
+
+  # Pets
+  Pets:
+    template: "02-Areas/Pets/{person}/Records/"
+
+  # Education
+  Education:
+    template: "02-Areas/Family/{person}/Education/{grade}/"
+
+  # Religious
+  Religious:
+    template: "02-Areas/Family/{person}/Religious_Records/"
+
+  # Business
+  Business:
+    template: "02-Areas/Business/{company}/"
+  BankStatement:
+    template: "02-Areas/Business/{company}/Financial/{year}/Banking/"
+  GovernmentFiling:
+    template: "02-Areas/Business/{company}/Legal/"
+
+  # Personal Finance
+  PersonalFinance:
+    archive_template: "04-Archives/Finance/Personal/{person}/{year}/"
+
+  # Vehicle
+  Vehicle:
+    archive_template: "04-Archives/Vehicles/Registration/{year}/"
+
+  # Employment
+  Employment:
+    archive_template: "04-Archives/Employment/{company}/"
+  EmployeeEvaluation:
+    archive_template: "04-Archives/Employment/{company}/"
+  EmployeeRecognition:
+    archive_template: "04-Archives/Employment/{company}/"
+
+  # Home
+  Home:
+    archive_template: "04-Archives/Home/{subcategory}/"
+
+  # Default archive for bills
+  Bill:
+    archive_template: "04-Archives/Finance/Medical_Bills/{person}/{year}/"
+  MedicalBill:
+    archive_template: "04-Archives/Finance/Medical_Bills/{person}/{year}/"
+  LabBill:
+    archive_template: "04-Archives/Finance/Medical_Bills/{person}/{year}/"
+  DentalBill:
+    archive_template: "04-Archives/Finance/Medical_Bills/{person}/{year}/"
+  HospitalBill:
+    archive_template: "04-Archives/Finance/Medical_Bills/{person}/{year}/"
+
+# ============================================================
+# FILENAME HEURISTICS — handle scanner default names
+# ============================================================
+filename_heuristics:
+  # Patterns that indicate generic scanner-assigned names (no useful info)
+  scanner_defaults:
+    - pattern: "^Scan\\d{4}-\\d{2}-\\d{2}_\\d{6}"
+      description: "HP Scanner default (ScanYYYY-MM-DD_HHMMSS)"
+      use_mtime_as_date: true
+    - pattern: "^\\d{8}_\\d{6}_\\d{3}"
+      description: "Numeric scan pattern (YYYYMMDD_HHMMSS_NNN)"
+      use_mtime_as_date: true
+    - pattern: "^\\d{8}_"
+      description: "Short date prefix (YYYYMMDD_)"
+      convert_date: true
+      date_format: "%Y%m%d"
+    - pattern: "^0000-00-00_"
+      description: "Missing date placeholder"
+      use_mtime_as_date: true
+
+  # Folder name heuristics — if file is inside a named folder, use it
+  folder_name_detection:
+    enabled: true
+    # Map common folder name patterns to metadata
+    # Each rule can set: doc_type_hint, person_hint, company_hint, ambiguous (flag for user review)
+    patterns:
+      # Education — maps BOTH type and person
+      - folder_pattern: "(?i)homework|hw"
+        doc_type_hint: "Education"
+        person_hint: "Isabella"  # Homework always = Bella's schoolwork
+        event_hint: "Homework"
+      - folder_pattern: "(?i)school|class|grade"
+        doc_type_hint: "Education"
+
+      # Vehicle
+      - folder_pattern: "(?i)registration|renewal|tag|decal"
+        doc_type_hint: "Vehicle"
+
+      # Employment — employer-specific
+      - folder_pattern: "(?i)expeditors"
+        doc_type_hint: "Employment"
+        company_hint: "Expeditors"
+        person_hint: "Natalie"  # Natalie's employer
+      - folder_pattern: "(?i)evaluation|recognition|employee|employment"
+        doc_type_hint: "Employment"
+
+      # Bank statements — AMBIGUOUS (Business or Personal Finance)
+      - folder_pattern: "(?i)bank.*statement|checking.*statement|savings.*statement"
+        doc_type_hint: "Business"  # Default, but flagged
+        ambiguous: "Business_or_PersonalFinance"
+        question: "Is this a business or personal bank statement?"
+      - folder_pattern: "(?i)credit.*card.*statement"
+        doc_type_hint: "Business"
+        ambiguous: "Business_or_PersonalFinance"
+        question: "Is this a business or personal credit card statement?"
+
+      # IRS / Tax docs — always business when inside company folder
+      - folder_pattern: "(?i)irs|ein|s-corp|tax"
+        doc_type_hint: "Business"
+
+      # Business — company folder pattern
+      - folder_pattern: "(?i)business.*companies|companies"
+        doc_type_hint: "Business"
+      - folder_pattern: "(?i)corporation.*docs|corporation"
+        doc_type_hint: "Business"
+      - folder_pattern: "(?i)bofa|bank.*of.*america|bank.*statement"
+        doc_type_hint: "Business"
+      - folder_pattern: "(?i)sunbiz|division.*corporations|dept.*state"
+        doc_type_hint: "Business"
+
+      # Medical / Doctor — strong hint that contents are medical records
+      - folder_pattern: "(?i)/\\b(doctor|medical|hospital|clinic|er|emergency)\\b/|\\b(doctor|medical|hospital|clinic)\\b/"
+        doc_type_hint: "MedicalRecord"
+
+      # Creative / Photos
+      - folder_pattern: "(?i)\\b(pics?|photos?|pictures?)\\b"
+        doc_type_hint: "Creative_Work"
+        extract_event: true  # Flag: look for event name in sibling/parent folders
+
+      # Business-specific companies
+      - folder_pattern: "(?i)realtor|realty|real estate|frec"
+        doc_type_hint: "Business"
+      - folder_pattern: "(?i)nd.?tek|nand.?d|tek solutions|nd_tek"
+        doc_type_hint: "Business"
+        company_hint: "NAndD Tek Solutions"
+        person_hint: "Daniel"
+
+  # Person detection from folder/file paths
+  path_person_detection:
+    enabled: true
+    patterns:
+      - pattern: "(?i)nany|natalie"
+        person: "Natalie"
+      - pattern: "(?i)bella|isabella"
+        person: "Isabella"
+      - pattern: "(?i)daniel|dieppa"
+        person: "Daniel"
+      - pattern: "(?i)nala"
+        person: "Nala"
+
+# ============================================================
+# ARCHIVE CATEGORIES — what gets archived vs. kept active
+# ============================================================
+routing:
+  archive_categories: ["Dental", "Hospital", "Lab", "Insurance", "AutoInsurance", "Auto", "Vehicle", "Home", "Employment", "Activities"]
+  archive_templates:
+    Insurance: "04-Archives/Finance/Insurance/{person}/{year}/"
+    default: "04-Archives/Finance/{category}/{person}/{year}/"
+    Vehicle: "04-Archives/Vehicles/{subcategory}/{year}/"
+    Employment: "04-Archives/Employment/{date_range}_{company}/"
+    Home: "04-Archives/Home/{subcategory}/"
+
+  # Medication map: canonical generic names, brand names, and aliases
+  # Used by _extract_medication() to normalize OCR-extracted medication names
+  # and to fill in brand names when only the generic is found in text.
+  medication_map:
+    aripiprazole:
+      canonical: "Aripiprazole"
+      brand: "Abilify"
+      aliases: ["aripiprazole", "abilify", "abilify maintena", "abilify discmelt"]
+    escitalopram:
+      canonical: "Escitalopram"
+      brand: "Lexapro"
+      aliases: ["escitalopram", "lexapro", "lexapro solution"]
+    fluoxetine:
+      canonical: "Fluoxetine"
+      brand: "Prozac"
+      aliases: ["fluoxetine", "prozac", "prozac weekly", "sarafem"]
+    sertraline:
+      canonical: "Sertraline"
+      brand: "Zoloft"
+      aliases: ["sertraline", "zoloft"]
+    methylphenidate:
+      canonical: "Methylphenidate"
+      brand: "Ritalin"
+      aliases: ["methylphenidate", "ritalin", "concerta", "ritalin la", "metadate", "daytrana"]
+    lisdexamfetamine:
+      canonical: "Lisdexamfetamine"
+      brand: "Vyvanse"
+      aliases: ["lisdexamfetamine", "vyvanse"]
+    amphetamine_salt_combo:
+      canonical: "Amphetamine"
+      brand: "Adderall"
+      aliases: ["amphetamine", "adderall", "adderall xr", "mixed amphetamine salts"]
+    guanfacine:
+      canonical: "Guanfacine"
+      brand: "Intuniv"
+      aliases: ["guanfacine", "intuniv", "tenex"]
+    atomoxetine:
+      canonical: "Atomoxetine"
+      brand: "Strattera"
+      aliases: ["atomoxetine", "strattera"]
+    melatonin:
+      canonical: "Melatonin"
+      brand: null
+      aliases: ["melatonin"]
+    amoxicillin:
+      canonical: "Amoxicillin"
+      brand: "Amoxil"
+      aliases: ["amoxicillin", "amoxil", "trimox"]
+    azithromycin:
+      canonical: "Azithromycin"
+      brand: "Zithromax"
+      aliases: ["azithromycin", "zithromax", "z-pack", "zpack"]
+    ibuprofen:
+      canonical: "Ibuprofen"
+      brand: "Advil"
+      aliases: ["ibuprofen", "advil", "motrin", "motrin ib"]
+    acetaminophen:
+      canonical: "Acetaminophen"
+      brand: "Tylenol"
+      aliases: ["acetaminophen", "tylenol", "paracetamol"]
+    loratadine:
+      canonical: "Loratadine"
+      brand: "Claritin"
+      aliases: ["loratadine", "claritin"]
+    cetirizine:
+      canonical: "Cetirizine"
+      brand: "Zyrtec"
+      aliases: ["cetirizine", "zyrtec"]
+    amantadine:
+      canonical: "Amantadine"
+      brand: "Symmetrel"
+      aliases: ["amantadine", "symmetrel"]
+    risperidone:
+      canonical: "Risperidone"
+      brand: "Risperdal"
+      aliases: ["risperidone", "risperdal"]
+
+  # Business company routing — maps extracted business names to QSync folder structure
+  # This handles company name normalization and subfolder routing for business docs.
+  business_companies:
+    # All N&D companies share the same structure template
+    - match: ["N&D TEK SOLUTIONS LLC", "N&D TEK SOLUTIONS", "ND TEK SOLUTIONS", "NANDD TEK SOLUTIONS"]
+      folder: "ND_Tek_Solutions"       # Must match existing QSync folder name
+      structure: "standard"              # standard = Financial/{year}/Banking/, Legal/, etc.
+    - match: ["N&D TEK MINDS LLC", "N&D TEK MINDS", "ND TEK MINDS", "NANDD TEK MINDS"]
+      folder: "ND_Tek_Minds"
+      structure: "standard"

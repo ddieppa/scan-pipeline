@@ -1,0 +1,16 @@
+# Notion sync state
+.notion_sync_index.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+
+# State data (SQLite DBs, runtime state)
+state-data/
+
+# OS
+.DS_Store
+Thumbs.dbstate-data/*.db
+state-data/*.db-journal

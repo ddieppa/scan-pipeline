@@ -1,0 +1,7 @@
+version: 1
+title: "Scan Pipeline v3"
+include_duplicates: true
+max_items_per_destination: 20
+show_confidence: true
+show_rule_match_id: true
+show_batch_id: true

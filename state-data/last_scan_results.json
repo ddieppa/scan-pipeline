@@ -1,0 +1,27 @@
+[
+  {
+    "status": "success",
+    "sha256": "cb2dc7c4471e4004a253746d5e24802ae876f6dcb1395c29942dca1fcb327495",
+    "path": "/home/ddieppa/scanner/processing/Scan2026-05-08_083532.pdf",
+    "filename": "Scan2026-05-08_083532.pdf",
+    "scanDate": "2026-05-08",
+    "textSource": "pdftotext",
+    "docType": "SSNFront",
+    "person": "Daniel",
+    "provider": "Cigna",
+    "proposedName": "2026-05-08_SSNFront_Daniel_EXP-2026-03-07.pdf",
+    "proposedDest": "02-Areas/Legal/Identity/Daniel/",
+    "confidence": 0.88,
+    "ruleMatchId": "identity_card:cigna",
+    "medication": null,
+    "brandName": null,
+    "ocrSample": "1111111 11111111111111111111111111111111111111111 111111111 1111111111111111111111111111111111111111111 1111 Today: 03/07/2026 11:45:13 Quest Diagnostics: eREQ CLIENT INFORMATION: REQUISITION/PHYSICIAN INFORMATION: Kendall Pediatric Partner",
+    "ocrFullText": "1111111\n    11111111111111111111111111111111111111111\n                    111111111\n                        1111111111111111111111111111111111111111111\n                                        1111                                                                                  Today: 03/07/2026 11:45:13\n\n                                                          Quest Diagnostics: eREQ\nCLIENT INFORMATION:                                                                                           REQUISITION/PHYSICIAN INFORMATION:\nKendall Pediatric Partners, LLC                                                                                      Req/Ctrl# (CD-): 5QPSC24035533\n   11400 N KENDALL DR, STE A-2110AM', FL, 33176-1029                                                                           Olavarrieta, Raquel\nf. 305-274-2255                                                                                         NPI: 1477896199 State License No: ME127207\nAccount Number: 19642                                                                                 Pager No.: 168 Provider Mnemonic: 1477896199\nPATIENT INFORMATION:                                                                          RESPONSIBLE PARTY/GUARANTOR INFO:\nDIEPPA, ISABELLA , M, 11/28/2015                SSN: MRN: Visit Id: 0                         Name: DIEPPA, DANIEL\nHome: 786-475-0705 ID: 1088930 9 13965 SW 157 ST, Miami, FL-33177                             Relationship: Other    IL 786-475-0705\nRace: White Height (@©@©): @@@@ Weight (@@@@): @@@@ Bill Code: -CIGNA IFP                     Address: 13965 SW 157 ST, Miami FL 33177\n\n\nPRIMARY BILLING: Insurance\n                                                     Insurance Co Name: CI GNAIFP         Subscriber/Member# :\nInsured Name: DIEPPA, DANIEL                                                                                                 Workers Comp? N\n                                                     Insurance Phone: 800-663-8081        11253888302\nRelationship: Other        (786)475-0705                                                                                     Group Number:\n                                                     Address: PO BOX 188061,              Medicaid/HMO#:\nAddress: 13965 SW 157 ST, Miami FL 33177\n                                                     CHATTANOOGA, TN, 37422-8099          Payor/Carrier Code:\nOrder Date: 03/07/2026              Order Placed Date: 03/07/2026           Collection Date/Time: 00/00/0000 00:00:00\n\n Stat       Fasting      Tests Ordered                         PSC      Comments                           Diagnosis      Instructions\n                                                               HOLD                                        Codes\n                         6399 CBC (INCLUDES DIFF/PLT)          PSC                                         R63.0,\n                         (6399)                                                                            R10.84\n            FAST         10231 COMPREHENSIVE                   PSC                                         R63.0,\n                         METABOLIC PANEL (10231)                                                           R10.84\n            FAST         7600 LIPID PANEL, STANDARD            PSC                                         R63.0,\n                         (7600)                                                                            R10.84\n                         3020 URINALYSIS, COMPLETE             PSC                                         R63.0,\n                         W/REFLEX TO CULTURE (3020)                                                        R10.84\n                         17306 VITAMIN D,25-0H,TOTAL,IA        PSC                                         R63.0,\n                         (17306)                                                                           R10.84\n\n\n\n\nElectronically Signed By: Olavarrieta, Raquel                                                                           Signature of Patient/Guardian\n\nOrder generated by eClinicalWorks (www.eclinicalworks.com)                                                       DIEPPA, ISABELLA , M, 11/28/2015\n\n\n\n\n  https://flmghimpgpgrx7asbcapp.ecwcloud.com/mobiledoc/jsp/webemr/index.jsp#/mobiledoc/jsp/webemr/progressnotes/physiciansdashboard/dashboar...   1/1",
+    "reason_for_visit": null,
+    "final_diagnosis": null,
+    "physician": null,
+    "ocr_from_cache": false,
+    "ocr_duration_ms": 215,
+    "id": 1
+  }
+]
