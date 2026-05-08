@@ -20,6 +20,8 @@ import argparse
 import json
 import shutil
 import sys
+
+from app.safe_move import safe_move_file
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -95,11 +97,15 @@ def move_file(
             target_path = target_dir / f"{stem}_v{idx}{suffix}"
             idx += 1
 
-    # Move or copy
+    # Move or copy (safe — pre-flight checks, hash verification, retry)
     if copy_mode:
-        shutil.copy2(str(source), str(target_path))
+        move_result = safe_move_file(source, target_path, copy_mode=True)
     else:
-        shutil.move(str(source), str(target_path))
+        move_result = safe_move_file(source, target_path)
+    
+    if not move_result["ok"]:
+        return {"ok": False, "error": f"Move failed: {move_result['error']}"}
+    target_path = Path(move_result["moved_to"])
 
     # Build metadata
     meta = {

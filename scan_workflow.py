@@ -804,6 +804,101 @@ def cmd_ocr_cache(args) -> None:
 
 # ── Main ───────────────────────────────────────────────────────────
 
+
+
+
+
+
+def cmd_recover(args) -> None:
+    """Recover stuck files from processing/ directory."""
+    from app.settings import load_settings
+    settings = load_settings()
+    
+    processing = settings.state_dir.parent / "processing"
+    inbox = settings.inbox_root
+    
+    if not processing.exists():
+        processing = Path("/home/ddieppa/scanner/processing")
+    
+    if not inbox.exists():
+        inbox = Path("/home/ddieppa/scanner/inbox")
+    
+    # Also check the legacy inbox
+    legacy_inbox = Path("/mnt/e/Qsync-Scanned-Documents/!!!Check")
+    
+    moved = 0
+    skipped = 0
+    
+    # Move stuck files from processing/ back to inbox/
+    if processing.exists():
+        for f in processing.rglob("*"):
+            if not f.is_file():
+                continue
+            # Check if file is old enough (older than 30 minutes)
+            import time
+            age_minutes = (time.time() - f.stat().st_mtime) / 60
+            if age_minutes < 30:
+                skipped += 1
+                print(f"  ⏳ Too recent (< 30 min): {f.name} ({age_minutes:.0f} min old)")
+                continue
+            dest = inbox / f.name
+            if dest.exists():
+                print(f"  ⚠️ Already exists in inbox: {f.name}")
+                continue
+            try:
+                shutil.move(str(f), str(dest))
+                print(f"  ✅ Recovered: {f.name} → inbox/")
+                moved += 1
+            except OSError as e:
+                print(f"  ❌ Failed to move {f.name}: {e}")
+    
+    # Check for failed moves in the database
+    from app.safe_move import list_failed_moves, recover_failed_move
+    failed = list_failed_moves()
+    recovered_moves = 0
+    if failed:
+        print(f"\n📋 Found {len(failed)} failed move(s) in database:")
+        for f in failed:
+            print(f"  ID {f['id']}: {Path(f['source_path']).name} → {f['target_path']}")
+            print(f"     Reason: {f['reason']}")
+            # Try to recover
+            if Path(f['source_path']).exists():
+                result = recover_failed_move(f['id'])
+                if result['ok']:
+                    print(f"     ✅ Recovered!")
+                    recovered_moves += 1
+                else:
+                    print(f"     ❌ Still failing: {result['error']}")
+            else:
+                print(f"     ⚠️ Source file no longer exists")
+    
+    print(f"\n📊 Recovery summary: {moved} files moved to inbox, {skipped} skipped (too recent), {recovered_moves} failed moves recovered")
+
+
+def cmd_failed_moves(args) -> None:
+    """List failed moves from the database."""
+    from app.safe_move import list_failed_moves
+    
+    failed = list_failed_moves()
+    if not failed:
+        print("No failed moves.")
+        return
+    
+    print(f"📋 {len(failed)} failed move(s):")
+    print()
+    from pathlib import Path
+    for f in failed:
+        source_name = Path(f['source_path']).name
+        target_short = f['target_path'][-60:] if len(f['target_path']) > 60 else f['target_path']
+        print(f"  ID {f['id']}: {source_name}")
+        print(f"     → {target_short}")
+        print(f"     Reason: {f['reason']}")
+        print(f"     Failed: {f['failed_at']}")
+        if f.get('recovered_at'):
+            print(f"     Recovered: {f['recovered_at']} ({f.get('recovery_action', 'unknown')})")
+        print()
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Scan workflow — single entry point for inbox scanning",
@@ -870,6 +965,13 @@ def main():
     lifecycle_parser.add_argument("--stats", action="store_true", help="Show aggregate statistics")
     lifecycle_parser.add_argument("--limit", type=int, default=20, help="Max recent records to show")
 
+    # recover — move stuck files from processing/ back to inbox/
+    recover_parser = subparsers.add_parser("recover", help="Recover stuck files from processing/")
+    recover_parser.add_argument("--force", action="store_true", help="Move files regardless of age (default: 30 min minimum)")
+
+    # failed-moves — list failed moves from database
+    failed_parser = subparsers.add_parser("failed-moves", help="List failed file moves")
+
     # run
     run_parser = subparsers.add_parser("run", help="Full workflow: scan → propose → approve")
     run_parser.add_argument("--yes", "-y", action="store_true", help="Auto-approve all (non-interactive)")
@@ -905,6 +1007,10 @@ def main():
         cmd_correct(args)
     elif args.command == "lifecycle":
         cmd_lifecycle(args)
+    elif args.command == "recover":
+        cmd_recover(args)
+    elif args.command == "failed-moves":
+        cmd_failed_moves(args)
     else:
         parser.print_help()
 

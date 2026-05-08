@@ -127,6 +127,24 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_file_index_meta ON file_index(sidecar_has_meta)
     ''')
 
+    # ── Move failure tracking ──
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS move_failed (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            source_path TEXT NOT NULL,
+            target_path TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            attempt INTEGER,
+            failed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            recovered_at TIMESTAMP,
+            recovery_action TEXT
+        )
+    ''')
+
+    c.execute('''
+        CREATE INDEX IF NOT EXISTS idx_move_failed_recovered ON move_failed(recovered_at)
+    ''')
+
     # ── Lifecycle tracking: full audit trail per file ──
     c.execute('''
         CREATE TABLE IF NOT EXISTS scan_lifecycle (

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import shutil
 from datetime import datetime
+
+from app.safe_move import safe_move_file, list_failed_moves, recover_failed_move
 from pathlib import Path
 from typing import Any
 
@@ -46,7 +47,25 @@ def approve_proposal(
     target_dir = settings.qsync_root / final_dest
     target_dir.mkdir(parents=True, exist_ok=True)
     target_path = _unique_path(target_dir / final_name)
-    shutil.move(str(source), str(target_path))
+    move_result = safe_move_file(source, target_path)
+    if not move_result["ok"]:
+        # Move failed — update lifecycle and return error
+        try:
+            from app.state.scan_db import update_lifecycle_approval
+            update_lifecycle_approval(
+                sha256=sha256,
+                final_name=final_name,
+                final_dest=final_dest,
+                final_doc_type=proposal_data.get("docType", ""),
+                final_person=proposal_data.get("person", ""),
+                final_provider=proposal_data.get("provider", ""),
+                override_type="move_failed",
+                rejection_reason=move_result["error"],
+            )
+        except Exception:
+            pass
+        return {"ok": False, "error": f"Move failed: {move_result['error']}", "sha256": sha256, "move_error": move_result}
+    target_path = Path(move_result["moved_to"])
 
     # Generate sidecar files (.ocr.txt + .meta.json) next to the moved file
     _create_sidecars_for_approved(settings, sha256, target_path)

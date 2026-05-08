@@ -1,10 +1,10 @@
 {
   "a5ffdc9054f3fac9128c9700ec056c68e2a4b178a1c4f131ede10fa8a3fb6307": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/151201 Maternal Discharge.jpg",
     "filename": "151201 Maternal Discharge.jpg",
-    "timestamp": "2026-05-07T17:08:23.888307",
-    "row_number": 3,
+    "timestamp": "2026-05-08T14:00:14.385115",
+    "row_number": 1,
     "proposal": {
       "proposedName": "2019-03-26_Marimon_MedicalRecord_Natalie.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/",
@@ -17,10 +17,10 @@
     "status": "pending"
   },
   "72e1e89115e5142afd60971d02fc48c3e73c23a0d46f42dc5eb6936cb7165add": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/151003 Labs.jpg",
     "filename": "151003 Labs.jpg",
-    "timestamp": "2026-05-07T17:08:23.886369",
+    "timestamp": "2026-05-08T14:00:14.388986",
     "row_number": 2,
     "proposal": {
       "proposedName": "2015-10-03_Unknown_MedicalRecord_Natalie.jpg",
@@ -34,11 +34,11 @@
     "status": "pending"
   },
   "ea0e5bb5da9821637b69c03fb4c65594ae0bea0c2a0b3ce0068e5e379ac76864": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/151201 Maternal Discharge 03.jpg",
     "filename": "151201 Maternal Discharge 03.jpg",
-    "timestamp": "2026-05-07T17:08:23.882497",
-    "row_number": 1,
+    "timestamp": "2026-05-08T14:00:14.390714",
+    "row_number": 3,
     "proposal": {
       "proposedName": "2019-03-26_Marimon_Rx_Reconciliation_Natalie.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/",
@@ -51,11 +51,11 @@
     "status": "pending"
   },
   "e531243fd82b4e382fa07b49a00b27e2c708c09072cf4df9daafdf4f3588ecd0": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_001.jpg",
     "filename": "Scan2020-03-11_094458_001.jpg",
-    "timestamp": "2026-05-07T17:08:23.889897",
-    "row_number": 4,
+    "timestamp": "2026-05-08T14:00:14.393861",
+    "row_number": 5,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie_009.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -68,11 +68,11 @@
     "status": "pending"
   },
   "4df27190bcc7560c1b0ea379ffd754ac147df1fe3c24ed405f68785602eb8661": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_000.jpg",
     "filename": "Scan2020-03-11_094458_000.jpg",
-    "timestamp": "2026-05-07T17:08:23.891478",
-    "row_number": 5,
+    "timestamp": "2026-05-08T14:00:14.399375",
+    "row_number": 7,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -85,11 +85,11 @@
     "status": "pending"
   },
   "76d81083617b3254e3aeb8955efc25899be9cd259fd9bd66763429e89eda060f": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_003.jpg",
     "filename": "Scan2020-03-11_094458_003.jpg",
-    "timestamp": "2026-05-07T17:08:23.896203",
-    "row_number": 7,
+    "timestamp": "2026-05-08T14:00:14.396810",
+    "row_number": 6,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_Rx_Natalie_007.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -102,11 +102,11 @@
     "status": "pending"
   },
   "36a5530ad07d1e10fc2cd3a98e8422fd240267c69526492ecd6bb693b5c30baa": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_004.jpg",
     "filename": "Scan2020-03-11_094458_004.jpg",
-    "timestamp": "2026-05-07T17:08:23.901236",
-    "row_number": 9,
+    "timestamp": "2026-05-08T14:00:14.408244",
+    "row_number": 11,
     "proposal": {
       "proposedName": "2019-09-29_BaptistHealth_Rx_Leaflets_Natalie_006.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -119,11 +119,11 @@
     "status": "pending"
   },
   "59e15cfae47dcd5a149389749bf5b64df940cbaf427aaee91631322c942b4641": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_002.jpg",
     "filename": "Scan2020-03-11_094458_002.jpg",
-    "timestamp": "2026-05-07T17:08:23.893244",
-    "row_number": 6,
+    "timestamp": "2026-05-08T14:00:14.401970",
+    "row_number": 8,
     "proposal": {
       "proposedName": "2019-09-29_BaptistHealth_MedicalRecord_Natalie_008.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Hospitalization/",
@@ -136,11 +136,11 @@
     "status": "pending"
   },
   "7c81574d5bb5c0fbe3b740e31a51836e29bf6d6cfff7d7e0c11b29f539cd7d3d": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20181216 Aetna Approval.jpg",
     "filename": "20181216 Aetna Approval.jpg",
-    "timestamp": "2026-05-07T17:08:23.898671",
-    "row_number": 8,
+    "timestamp": "2026-05-08T14:00:14.392349",
+    "row_number": 4,
     "proposal": {
       "proposedName": "2019-04-21_Unknown_Receipt_Natalie.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -153,11 +153,11 @@
     "status": "pending"
   },
   "dc023e9bb5b90ce12a21d4540e9081d506593b277892a49a48554ca58628f25a": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_005.jpg",
     "filename": "Scan2020-03-11_094458_005.jpg",
-    "timestamp": "2026-05-07T17:08:23.905433",
-    "row_number": 11,
+    "timestamp": "2026-05-08T14:00:14.403427",
+    "row_number": 9,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie_005.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -170,10 +170,10 @@
     "status": "pending"
   },
   "33040b029c8954666237226c806f6134c848517c6a2cb656ba96d480f7382019": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_006.jpg",
     "filename": "Scan2020-03-11_094458_006.jpg",
-    "timestamp": "2026-05-07T17:08:23.903431",
+    "timestamp": "2026-05-08T14:00:14.405970",
     "row_number": 10,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie_004.jpg",
@@ -187,11 +187,11 @@
     "status": "pending"
   },
   "bf695a6be957a17089c9cc45ad74443c965661cf0d1228700cdff72115027521": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_007.jpg",
     "filename": "Scan2020-03-11_094458_007.jpg",
-    "timestamp": "2026-05-07T17:08:23.911336",
-    "row_number": 14,
+    "timestamp": "2026-05-08T14:00:14.410198",
+    "row_number": 12,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie_003.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -204,10 +204,10 @@
     "status": "pending"
   },
   "d3dd1cd601e14f7925af509b4106cac5fa7b015c3f650410c945ccb1e220bbc5": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_010.jpg",
     "filename": "Scan2020-03-11_094458_010.jpg",
-    "timestamp": "2026-05-07T17:08:23.909243",
+    "timestamp": "2026-05-08T14:00:14.412307",
     "row_number": 13,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie.jpg",
@@ -221,11 +221,11 @@
     "status": "pending"
   },
   "505066293695965a360fe6e86c07f31a241a1ae284b342f1859b5ca6b6b6a12d": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_008.jpg",
     "filename": "Scan2020-03-11_094458_008.jpg",
-    "timestamp": "2026-05-07T17:08:23.907057",
-    "row_number": 12,
+    "timestamp": "2026-05-08T14:00:14.416751",
+    "row_number": 15,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_Rx_Natalie_002.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -238,11 +238,11 @@
     "status": "pending"
   },
   "b895cf17b7010e842365d03ba96c08f9eb76c6c20920193359aa2bc5c43ac7d2": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_009.jpg",
     "filename": "Scan2020-03-11_094458_009.jpg",
-    "timestamp": "2026-05-07T17:08:23.913759",
-    "row_number": 15,
+    "timestamp": "2026-05-08T14:00:14.414434",
+    "row_number": 14,
     "proposal": {
       "proposedName": "2019-09-29_BaptistHealth_MedicalRecord_Natalie_001.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Hospitalization/",
@@ -255,11 +255,11 @@
     "status": "pending"
   },
   "cfa1c0b276bc9aecd3ee0ccc5387e5bb4a8a650bccde2c51ec176a705e104e36": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_011.jpg",
     "filename": "Scan2020-03-11_094458_011.jpg",
-    "timestamp": "2026-05-07T17:08:23.922170",
-    "row_number": 18,
+    "timestamp": "2026-05-08T14:00:14.419147",
+    "row_number": 16,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -272,11 +272,11 @@
     "status": "pending"
   },
   "4d63dda453bcc39e36e84e51a5c4ee0a0102ca77cb5bca8ea4935f21d268497f": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_012.jpg",
     "filename": "Scan2020-03-11_094458_012.jpg",
-    "timestamp": "2026-05-07T17:08:23.916561",
-    "row_number": 16,
+    "timestamp": "2026-05-08T14:00:14.421226",
+    "row_number": 17,
     "proposal": {
       "proposedName": "2019-09-29_BaptistHealth_MedicalRecord_Natalie_015.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Hospitalization/",
@@ -289,11 +289,11 @@
     "status": "pending"
   },
   "a3a058c3075a5921238207118a263917d3ef704efe849e43d46f6e48f1423582": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_013.jpg",
     "filename": "Scan2020-03-11_094458_013.jpg",
-    "timestamp": "2026-05-07T17:08:23.919356",
-    "row_number": 17,
+    "timestamp": "2026-05-08T14:00:14.427385",
+    "row_number": 20,
     "proposal": {
       "proposedName": "2019-09-29_BaptistHealth_MedicalRecord_Natalie_014.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Hospitalization/",
@@ -306,10 +306,10 @@
     "status": "pending"
   },
   "860d31e7b43066df510568696f80256880f2cae9bd7493999907acd5b38019c7": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_014.jpg",
     "filename": "Scan2020-03-11_094458_014.jpg",
-    "timestamp": "2026-05-07T17:08:23.924899",
+    "timestamp": "2026-05-08T14:00:14.425279",
     "row_number": 19,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie_013.jpg",
@@ -323,10 +323,10 @@
     "status": "pending"
   },
   "285125ee1ebf8a40e38ee8fa65b1b0c5815408ac26ca1f8646a7f8fee289a52e": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_016.jpg",
     "filename": "Scan2020-03-11_094458_016.jpg",
-    "timestamp": "2026-05-07T17:08:23.929825",
+    "timestamp": "2026-05-08T14:00:14.429559",
     "row_number": 21,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_Rx_Natalie_011.jpg",
@@ -340,11 +340,11 @@
     "status": "pending"
   },
   "7c1178717c5944505f708e5e7b1c3e37ed2418895573705a3d72221b55dd9147": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_015.jpg",
     "filename": "Scan2020-03-11_094458_015.jpg",
-    "timestamp": "2026-05-07T17:08:23.927555",
-    "row_number": 20,
+    "timestamp": "2026-05-08T14:00:14.423354",
+    "row_number": 18,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie_012.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -357,11 +357,11 @@
     "status": "pending"
   },
   "ecc9b115e90352a606f85e208825050a79d2f3e2801718e9bdcfe1b778d709a7": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_017.jpg",
     "filename": "Scan2020-03-11_094458_017.jpg",
-    "timestamp": "2026-05-07T17:08:23.932642",
-    "row_number": 22,
+    "timestamp": "2026-05-08T14:00:14.437105",
+    "row_number": 24,
     "proposal": {
       "proposedName": "2019-09-29_BaptistHealth_Rx_Leaflets_Natalie_010.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -374,11 +374,11 @@
     "status": "pending"
   },
   "2c8d60e5e24bedf1aab2e3e48800b712f2478eedcb9cb944ca037c054980d0f7": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_019.jpg",
     "filename": "Scan2020-03-11_094458_019.jpg",
-    "timestamp": "2026-05-07T17:08:23.937601",
-    "row_number": 24,
+    "timestamp": "2026-05-08T14:00:14.432154",
+    "row_number": 22,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie_008.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -391,10 +391,10 @@
     "status": "pending"
   },
   "aebc37b631b0967f846f051420cf718b3a3375337e2f1c00aab098dc79b82e40": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_018.jpg",
     "filename": "Scan2020-03-11_094458_018.jpg",
-    "timestamp": "2026-05-07T17:08:23.935097",
+    "timestamp": "2026-05-08T14:00:14.434389",
     "row_number": 23,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_Rx_Natalie_009.jpg",
@@ -408,10 +408,10 @@
     "status": "pending"
   },
   "cc9a29c5219398d4398a63f943ec9807e507a5b8ad3feafbee92e989add1caf8": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_020.jpg",
     "filename": "Scan2020-03-11_094458_020.jpg",
-    "timestamp": "2026-05-07T17:08:23.939436",
+    "timestamp": "2026-05-08T14:00:14.439712",
     "row_number": 25,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie_007.jpg",
@@ -425,11 +425,11 @@
     "status": "pending"
   },
   "7a7d7c6f5366c5c3595c623eb89f222f5e0f8f9c959203a747027da59f019180": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_022.jpg",
     "filename": "Scan2020-03-11_094458_022.jpg",
-    "timestamp": "2026-05-07T17:08:23.945170",
-    "row_number": 29,
+    "timestamp": "2026-05-08T14:00:14.446901",
+    "row_number": 27,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie_005.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -442,11 +442,11 @@
     "status": "pending"
   },
   "041732457e073a9a5f228fb6b1fa31cd8e463de4aa1541fff98c4a742e6a6fd4": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_023.jpg",
     "filename": "Scan2020-03-11_094458_023.jpg",
-    "timestamp": "2026-05-07T17:08:23.942410",
-    "row_number": 27,
+    "timestamp": "2026-05-08T14:00:14.448576",
+    "row_number": 28,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie_004.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -459,10 +459,10 @@
     "status": "pending"
   },
   "7089274877b35c96a4f304e2ecbbd4ee769823d0af9f0cfe1d3c9b9d73f5c5b2": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_021.jpg",
     "filename": "Scan2020-03-11_094458_021.jpg",
-    "timestamp": "2026-05-07T17:08:23.940927",
+    "timestamp": "2026-05-08T14:00:14.445298",
     "row_number": 26,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_Rx_Natalie_006.jpg",
@@ -476,11 +476,11 @@
     "status": "pending"
   },
   "0c0161d41a301b629bccb2541238a877bc0a74cc3ab86f4aac3c69ceb932c594": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_024.jpg",
     "filename": "Scan2020-03-11_094458_024.jpg",
-    "timestamp": "2026-05-07T17:08:23.943782",
-    "row_number": 28,
+    "timestamp": "2026-05-08T14:00:14.450055",
+    "row_number": 29,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_Rx_Natalie_003.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -493,10 +493,10 @@
     "status": "pending"
   },
   "486d1491fe2cc67d9a414805f168cade62441679176942b6da2f753b8bd81dae": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_027.jpg",
     "filename": "Scan2020-03-11_094458_027.jpg",
-    "timestamp": "2026-05-07T17:08:23.949889",
+    "timestamp": "2026-05-08T14:00:14.455096",
     "row_number": 32,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie.jpg",
@@ -510,10 +510,10 @@
     "status": "pending"
   },
   "720301f84fcf71b7b0589f5df50609ca8fa74743ca4397205a743709d29c8649": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_025.jpg",
     "filename": "Scan2020-03-11_094458_025.jpg",
-    "timestamp": "2026-05-07T17:08:23.948383",
+    "timestamp": "2026-05-08T14:00:14.453446",
     "row_number": 31,
     "proposal": {
       "proposedName": "2019-09-29_Walgreens_Rx_Natalie_002.jpg",
@@ -527,10 +527,10 @@
     "status": "pending"
   },
   "783f379a5dd6c7fc6e7a6357e034c470fcfa820afc184e32e32f260e06f59ae1": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_026.jpg",
     "filename": "Scan2020-03-11_094458_026.jpg",
-    "timestamp": "2026-05-07T17:08:23.946795",
+    "timestamp": "2026-05-08T14:00:14.451830",
     "row_number": 30,
     "proposal": {
       "proposedName": "2019-09-29_BaptistHealth_MedicalRecord_Natalie_001.jpg",
@@ -544,11 +544,11 @@
     "status": "pending"
   },
   "ebec9554ec67578a419a94ed8ec34be5c6bfbb6d90ce40141f279b20cbffd72e": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_029.jpg",
     "filename": "Scan2020-03-11_094458_029.jpg",
-    "timestamp": "2026-05-07T17:08:23.952762",
-    "row_number": 34,
+    "timestamp": "2026-05-08T14:00:14.463324",
+    "row_number": 36,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -561,10 +561,10 @@
     "status": "pending"
   },
   "10ddd582e5310f77fef014c3d9f678cf45a69b85e61480dce27438dd833146a0": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_028.jpg",
     "filename": "Scan2020-03-11_094458_028.jpg",
-    "timestamp": "2026-05-07T17:08:23.951406",
+    "timestamp": "2026-05-08T14:00:14.456667",
     "row_number": 33,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie.jpg",
@@ -578,11 +578,11 @@
     "status": "pending"
   },
   "6e05efc297cde602689c049525fcdf4cd1011d06af5e22d9b28c1c23b21ebf9f": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_031.jpg",
     "filename": "Scan2020-03-11_094458_031.jpg",
-    "timestamp": "2026-05-07T17:08:23.956211",
-    "row_number": 36,
+    "timestamp": "2026-05-08T14:00:14.461952",
+    "row_number": 35,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -595,10 +595,10 @@
     "status": "pending"
   },
   "5de5e4b8951021c45369f1f15f02eacef3c1bdd03d6788e1193d0ed58c29d302": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_000.jpg",
     "filename": "Scan2020-07-11_193345_000.jpg",
-    "timestamp": "2026-05-07T17:08:23.957773",
+    "timestamp": "2026-05-08T14:00:14.464919",
     "row_number": 37,
     "proposal": {
       "proposedName": "2019-10-22_Unknown_MedicalRecord_Natalie.jpg",
@@ -612,11 +612,11 @@
     "status": "pending"
   },
   "d675d4eedf897755a22392276cdb3864f26836e05fa0fa06421043df9d1812c7": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20190929 Ectopic Pregnancy/Scan2020-03-11_094458_030.jpg",
     "filename": "Scan2020-03-11_094458_030.jpg",
-    "timestamp": "2026-05-07T17:08:23.954592",
-    "row_number": 35,
+    "timestamp": "2026-05-08T14:00:14.458200",
+    "row_number": 34,
     "proposal": {
       "proposedName": "2019-09-29_Unknown_MedicalRecord_Natalie.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -629,27 +629,10 @@
     "status": "pending"
   },
   "e92b087bdab488fbebfc0c240e777ffdb9c086c05faa79afa2dc2945829f39c9": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_002.jpg",
     "filename": "Scan2020-07-11_193345_002.jpg",
-    "timestamp": "2026-05-07T17:08:23.959309",
-    "row_number": 38,
-    "proposal": {
-      "proposedName": "2019-10-22_Unknown_MedicalRecord_Natalie.jpg",
-      "proposedDest": "03-Resources/Scans/",
-      "confidence": 0.72,
-      "docType": "MedicalRecord",
-      "person": "Natalie",
-      "provider": "Unknown",
-      "ruleMatchId": "medical_record:no-org"
-    },
-    "status": "pending"
-  },
-  "3c83e562ce5ebfd100fee518ba2bc15854aefba24be61a4b8127f5d4e7fa91fe": {
-    "batchId": "batch-3ae527f8d8be",
-    "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_001.jpg",
-    "filename": "Scan2020-07-11_193345_001.jpg",
-    "timestamp": "2026-05-07T17:08:23.960833",
+    "timestamp": "2026-05-08T14:00:14.467874",
     "row_number": 39,
     "proposal": {
       "proposedName": "2019-10-22_Unknown_MedicalRecord_Natalie.jpg",
@@ -662,11 +645,28 @@
     },
     "status": "pending"
   },
+  "3c83e562ce5ebfd100fee518ba2bc15854aefba24be61a4b8127f5d4e7fa91fe": {
+    "batchId": "batch-5bcc115d355f",
+    "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_001.jpg",
+    "filename": "Scan2020-07-11_193345_001.jpg",
+    "timestamp": "2026-05-08T14:00:14.466523",
+    "row_number": 38,
+    "proposal": {
+      "proposedName": "2019-10-22_Unknown_MedicalRecord_Natalie.jpg",
+      "proposedDest": "03-Resources/Scans/",
+      "confidence": 0.72,
+      "docType": "MedicalRecord",
+      "person": "Natalie",
+      "provider": "Unknown",
+      "ruleMatchId": "medical_record:no-org"
+    },
+    "status": "pending"
+  },
   "e1103f3e164729e30e8bd46bcdfa91f579ff8e887764a8544781db88471c28e4": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_004.jpg",
     "filename": "Scan2020-07-11_193345_004.jpg",
-    "timestamp": "2026-05-07T17:08:23.963940",
+    "timestamp": "2026-05-08T14:00:14.473102",
     "row_number": 41,
     "proposal": {
       "proposedName": "2019-10-22_MedicalRecord_Natalie_Natalie_004.jpg",
@@ -680,10 +680,10 @@
     "status": "pending"
   },
   "28fd8e3bf4db9a530d28c2c3c2bc54129e6be62303e763542213993d08065934": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_003.jpg",
     "filename": "Scan2020-07-11_193345_003.jpg",
-    "timestamp": "2026-05-07T17:08:23.962381",
+    "timestamp": "2026-05-08T14:00:14.469245",
     "row_number": 40,
     "proposal": {
       "proposedName": "2019-10-22_Unknown_MedicalRecord_Natalie.jpg",
@@ -697,10 +697,10 @@
     "status": "pending"
   },
   "7406df8cd9f4bbcde078ad6bf30d2636b91a882c81bc46d53e3ae8aedc773e03": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_005.jpg",
     "filename": "Scan2020-07-11_193345_005.jpg",
-    "timestamp": "2026-05-07T17:08:23.967340",
+    "timestamp": "2026-05-08T14:00:14.480716",
     "row_number": 43,
     "proposal": {
       "proposedName": "2019-10-22_BaptistHealth_MedicalRecord_Natalie.jpg",
@@ -714,10 +714,10 @@
     "status": "pending"
   },
   "4224e0d83b2ccf77c9dffd920652f45c6bdd54b2f0ac4e1c04ae4d2b4ffbd6bf": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_007.jpg",
     "filename": "Scan2020-07-11_193345_007.jpg",
-    "timestamp": "2026-05-07T17:08:23.968909",
+    "timestamp": "2026-05-08T14:00:14.482158",
     "row_number": 44,
     "proposal": {
       "proposedName": "2019-10-22_MedicalRecord_Natalie_Natalie_007.jpg",
@@ -731,10 +731,10 @@
     "status": "pending"
   },
   "47f6e1482733fc0c7b14dff530aeb7089c455de5d1ee93d7e81d1f64aec691d1": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_008.jpg",
     "filename": "Scan2020-07-11_193345_008.jpg",
-    "timestamp": "2026-05-07T17:08:23.970878",
+    "timestamp": "2026-05-08T14:00:14.483588",
     "row_number": 45,
     "proposal": {
       "proposedName": "2019-10-22_Unknown_Rx_Natalie.jpg",
@@ -748,10 +748,10 @@
     "status": "pending"
   },
   "b8f0abdf01d248c6b83c0444091def0962d4e35c9dbf6db9dbed59ca1b663130": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_006.jpg",
     "filename": "Scan2020-07-11_193345_006.jpg",
-    "timestamp": "2026-05-07T17:08:23.965546",
+    "timestamp": "2026-05-08T14:00:14.474616",
     "row_number": 42,
     "proposal": {
       "proposedName": "2019-10-22_Unknown_Bill_Natalie.jpg",
@@ -765,27 +765,27 @@
     "status": "pending"
   },
   "2ad3b310e588817de012a9ab80451b02d0b503dad3e0c966d150ac6019f9ca34": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_010.jpg",
     "filename": "Scan2020-07-11_193345_010.jpg",
-    "timestamp": "2026-05-07T17:08:23.972454",
+    "timestamp": "2026-05-08T14:00:14.485133",
     "row_number": 46,
     "proposal": {
-      "proposedName": "2019-10-22_QuestDiagnostics_LabBill_Natalie.jpg",
-      "proposedDest": "04-Archives/Finance/Medical_Bills/Natalie/2019/",
+      "proposedName": "2020-07-11_QuestDiagnostics_LabRequisition_Natalie.jpg",
+      "proposedDest": "02-Areas/Family/Natalie/Health/Lab/",
       "confidence": 0.92,
-      "docType": "LabBill",
+      "docType": "LabRequisition",
       "person": "Natalie",
       "provider": "QuestDiagnostics",
-      "ruleMatchId": "bill:quest-diagnostics"
+      "ruleMatchId": "lab_requisition:quest-diagnostics"
     },
     "status": "pending"
   },
   "bff79e65714d5f4ff22bc758b993a57c8dfa1d0352e4f297d498e3e434188cfd": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_011.jpg",
     "filename": "Scan2020-07-11_193345_011.jpg",
-    "timestamp": "2026-05-07T17:08:23.975342",
+    "timestamp": "2026-05-08T14:00:14.488343",
     "row_number": 48,
     "proposal": {
       "proposedName": "2019-10-22_MedicalRecord_Natalie_Natalie_011_014.jpg",
@@ -799,11 +799,11 @@
     "status": "pending"
   },
   "d905bcd432422d0fb66caf833d37b8644865a740b295188125256a9e57114bc4": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_012.jpg",
     "filename": "Scan2020-07-11_193345_012.jpg",
-    "timestamp": "2026-05-07T17:08:23.977412",
-    "row_number": 49,
+    "timestamp": "2026-05-08T14:00:14.491450",
+    "row_number": 50,
     "proposal": {
       "proposedName": "2019-10-22_Unknown_Rx_Natalie_013.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -816,10 +816,10 @@
     "status": "pending"
   },
   "203ba354759e4d5711a8ff5122a702637a1161d77e64a20a01e768b95a220fe9": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_009.jpg",
     "filename": "Scan2020-07-11_193345_009.jpg",
-    "timestamp": "2026-05-07T17:08:23.973840",
+    "timestamp": "2026-05-08T14:00:14.486660",
     "row_number": 47,
     "proposal": {
       "proposedName": "2019-10-22_Expeditors_MedicalRecord_Natalie.jpg",
@@ -833,11 +833,11 @@
     "status": "pending"
   },
   "6e7704866bec1f306b4ac6a20d52a94a0417167b3b9491dc39d6b870df440674": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_014.jpg",
     "filename": "Scan2020-07-11_193345_014.jpg",
-    "timestamp": "2026-05-07T17:08:23.984993",
-    "row_number": 54,
+    "timestamp": "2026-05-08T14:00:14.495194",
+    "row_number": 51,
     "proposal": {
       "proposedName": "2019-10-22_BaptistHealth_Rx_Information_Natalie_011.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -850,11 +850,11 @@
     "status": "pending"
   },
   "74398b2b8074d11228fa893f69f6a69acbdf8d0ef7d2ecf28bb1a968618af43e": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_015.jpg",
     "filename": "Scan2020-07-11_193345_015.jpg",
-    "timestamp": "2026-05-07T17:08:23.982087",
-    "row_number": 52,
+    "timestamp": "2026-05-08T14:00:14.498091",
+    "row_number": 53,
     "proposal": {
       "proposedName": "2019-10-22_Unknown_Rx_Natalie_010.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -867,11 +867,11 @@
     "status": "pending"
   },
   "fdd5670cc23ce8650ec626e4eb71fe35918a3ac9981fe37a25c90a7ff20be393": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_013.jpg",
     "filename": "Scan2020-07-11_193345_013.jpg",
-    "timestamp": "2026-05-07T17:08:23.978851",
-    "row_number": 50,
+    "timestamp": "2026-05-08T14:00:14.490003",
+    "row_number": 49,
     "proposal": {
       "proposedName": "2019-10-22_BaptistHealth_HospitalBill_Natalie_012.jpg",
       "proposedDest": "04-Archives/Finance/Medical_Bills/Natalie/2019/",
@@ -884,11 +884,11 @@
     "status": "pending"
   },
   "b572c7e3daa1db30e9062b679c528d2845d7e8a430ac1642a68c2bd52625816e": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_016.jpg",
     "filename": "Scan2020-07-11_193345_016.jpg",
-    "timestamp": "2026-05-07T17:08:23.980445",
-    "row_number": 51,
+    "timestamp": "2026-05-08T14:00:14.496672",
+    "row_number": 52,
     "proposal": {
       "proposedName": "2019-10-22_Unknown_Rx_Natalie_009.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -901,11 +901,11 @@
     "status": "pending"
   },
   "abad9f3c650aea078d9062fb5526431beb6a3c268fd2d028db3247b134b9089d": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_017.jpg",
     "filename": "Scan2020-07-11_193345_017.jpg",
-    "timestamp": "2026-05-07T17:08:23.983581",
-    "row_number": 53,
+    "timestamp": "2026-05-08T14:00:14.499406",
+    "row_number": 54,
     "proposal": {
       "proposedName": "2019-10-22_Unknown_Rx_Guide_Natalie_008.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -918,11 +918,11 @@
     "status": "pending"
   },
   "1ff7e15c27a09a61e53d61c9a6f2e64ad4bf13e3dabd4e6834c4e2fa2cd1689e": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_018.jpg",
     "filename": "Scan2020-07-11_193345_018.jpg",
-    "timestamp": "2026-05-07T17:08:23.988448",
-    "row_number": 56,
+    "timestamp": "2026-05-08T14:00:14.503533",
+    "row_number": 57,
     "proposal": {
       "proposedName": "2019-10-22_Unknown_Rx_Guides_Natalie_007.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -935,11 +935,11 @@
     "status": "pending"
   },
   "0c05776f9d247fb95bd43ce88382b9248953debd7d8605fcf7203f7f33480b97": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_019.jpg",
     "filename": "Scan2020-07-11_193345_019.jpg",
-    "timestamp": "2026-05-07T17:08:23.986618",
-    "row_number": 55,
+    "timestamp": "2026-05-08T14:00:14.502136",
+    "row_number": 56,
     "proposal": {
       "proposedName": "2019-10-22_Unknown_Rx_Guide_Natalie_006.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -952,11 +952,11 @@
     "status": "pending"
   },
   "485702c1af65ee8a93b2f6e9735dfdd49b23280650dfc67318d76ba1af7a9e1d": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_020.jpg",
     "filename": "Scan2020-07-11_193345_020.jpg",
-    "timestamp": "2026-05-07T17:08:23.990639",
-    "row_number": 57,
+    "timestamp": "2026-05-08T14:00:14.500785",
+    "row_number": 55,
     "proposal": {
       "proposedName": "2019-10-22_Unknown_Rx_Natalie_005.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -969,11 +969,11 @@
     "status": "pending"
   },
   "9cfbd63f4a1a98422163669ae37000d1ff6e1f9bb7768996a8c4609ee33b0be8": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_023.jpg",
     "filename": "Scan2020-07-11_193345_023.jpg",
-    "timestamp": "2026-05-07T17:08:23.993589",
-    "row_number": 59,
+    "timestamp": "2026-05-08T14:00:14.510364",
+    "row_number": 60,
     "proposal": {
       "proposedName": "2019-10-22_BaptistHealth_Rx_Natalie_002.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -986,10 +986,10 @@
     "status": "pending"
   },
   "97be5874c16ced642cb052b8d7c75be08d1daf700092ea131783f8649b6edce7": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_021.jpg",
     "filename": "Scan2020-07-11_193345_021.jpg",
-    "timestamp": "2026-05-07T17:08:23.992233",
+    "timestamp": "2026-05-08T14:00:14.505023",
     "row_number": 58,
     "proposal": {
       "proposedName": "2019-10-22_Unknown_Rx_Guides_Natalie_004.jpg",
@@ -1003,11 +1003,11 @@
     "status": "pending"
   },
   "d3706fd9d0a1da9c1e94ef4129a4d302c3a1d19af29c51c677bb5fc4569d9015": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_022.jpg",
     "filename": "Scan2020-07-11_193345_022.jpg",
-    "timestamp": "2026-05-07T17:08:23.996552",
-    "row_number": 61,
+    "timestamp": "2026-05-08T14:00:14.508770",
+    "row_number": 59,
     "proposal": {
       "proposedName": "2019-10-22_Unknown_Rx_Leaflets_Natalie.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -1020,11 +1020,11 @@
     "status": "pending"
   },
   "f0e6fdae49bcdbfcd925dbf19b88182c0cdb47325ac53d278c28d238da6f624d": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20191022/Scan2020-07-11_193345_024.jpg",
     "filename": "Scan2020-07-11_193345_024.jpg",
-    "timestamp": "2026-05-07T17:08:23.995186",
-    "row_number": 60,
+    "timestamp": "2026-05-08T14:00:14.511758",
+    "row_number": 61,
     "proposal": {
       "proposedName": "2019-10-22_Walgreens_Rx_Natalie_001.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -1037,10 +1037,10 @@
     "status": "pending"
   },
   "25b2153deba6156bdf5f338dbe5b1777e4eed77ca69f7a95304c392525992f3e": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220/Scan2020-07-11_193956_001.jpg",
     "filename": "Scan2020-07-11_193956_001.jpg",
-    "timestamp": "2026-05-07T17:08:23.999508",
+    "timestamp": "2026-05-08T14:00:14.514646",
     "row_number": 63,
     "proposal": {
       "proposedName": "2020-02-20_BaptistHealth_MedicalRecord_Natalie.jpg",
@@ -1054,27 +1054,27 @@
     "status": "pending"
   },
   "27c9beb6faad380636072acadb31a48b40aee3596517ebd6253acb00b3a3d153": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220/Scan2020-07-11_193956_000.jpg",
     "filename": "Scan2020-07-11_193956_000.jpg",
-    "timestamp": "2026-05-07T17:08:23.998029",
+    "timestamp": "2026-05-08T14:00:14.513268",
     "row_number": 62,
     "proposal": {
-      "proposedName": "2020-02-20_Unknown_Bill_Natalie.jpg",
-      "proposedDest": "04-Archives/Finance/Medical_Bills/Natalie/2020/",
+      "proposedName": "2020-07-11_Unknown_LabRequisition_Natalie.jpg",
+      "proposedDest": "03-Resources/Scans/",
       "confidence": 0.72,
-      "docType": "Bill",
+      "docType": "LabRequisition",
       "person": "Natalie",
       "provider": "Unknown",
-      "ruleMatchId": "bill:no-org"
+      "ruleMatchId": "lab_requisition:no-org"
     },
     "status": "pending"
   },
   "1befbebbd8910176866fc5672864f887df0b6e5710e08ac5cf5c6980c9e74815": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_000.jpg",
     "filename": "Scan2020-04-29_215020_000.jpg",
-    "timestamp": "2026-05-07T17:08:24.003229",
+    "timestamp": "2026-05-08T14:00:14.517362",
     "row_number": 65,
     "proposal": {
       "proposedName": "2020-02-20_DoralER_MedicalRecord_Natalie.jpg",
@@ -1088,10 +1088,10 @@
     "status": "pending"
   },
   "7bfca0ba437b2009be50d30678ff93ca931ad72eed4643f8ecb6a52851ec3378": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_001.jpg",
     "filename": "Scan2020-04-29_215020_001.jpg",
-    "timestamp": "2026-05-07T17:08:24.004665",
+    "timestamp": "2026-05-08T14:00:14.518706",
     "row_number": 66,
     "proposal": {
       "proposedName": "2020-02-20_BaptistHealth_MedicalRecord_Natalie_015.jpg",
@@ -1105,10 +1105,10 @@
     "status": "pending"
   },
   "18432104e9ca213f508b95b4f0f235461ba429fde48b53ff0154564733990c5f": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_003.jpg",
     "filename": "Scan2020-04-29_215020_003.jpg",
-    "timestamp": "2026-05-07T17:08:24.007306",
+    "timestamp": "2026-05-08T14:00:14.523782",
     "row_number": 68,
     "proposal": {
       "proposedName": "2020-02-20_Unknown_MedicalRecord_Natalie_013.jpg",
@@ -1122,27 +1122,27 @@
     "status": "pending"
   },
   "a3a4e8274a93720f5d9f6e15a0460cd9d81952a47eaba8179b6985ea575ac29f": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-03-11_100445.jpg",
     "filename": "Scan2020-03-11_100445.jpg",
-    "timestamp": "2026-05-07T17:08:24.000960",
+    "timestamp": "2026-05-08T14:00:14.515977",
     "row_number": 64,
     "proposal": {
-      "proposedName": "2020-02-20_Unknown_Rx_Reconciliation_Natalie.jpg",
-      "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
+      "proposedName": "2020-03-11_Unknown_LabRequisition_Natalie.jpg",
+      "proposedDest": "03-Resources/Scans/",
       "confidence": 0.72,
-      "docType": "Rx",
+      "docType": "LabRequisition",
       "person": "Natalie",
       "provider": "Unknown",
-      "ruleMatchId": "prescription:no-org"
+      "ruleMatchId": "lab_requisition:no-org"
     },
     "status": "pending"
   },
   "c53d730b8938b348e657d33acf9c3d823ae0cd45faeb88422eeeeaf737e9caa7": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_002.jpg",
     "filename": "Scan2020-04-29_215020_002.jpg",
-    "timestamp": "2026-05-07T17:08:24.005978",
+    "timestamp": "2026-05-08T14:00:14.522326",
     "row_number": 67,
     "proposal": {
       "proposedName": "2020-02-20_BaptistHealth_MedicalRecord_Natalie_014.jpg",
@@ -1156,10 +1156,10 @@
     "status": "pending"
   },
   "9a488287e6182246c56e4bfabe5f3c7ab04a0794ba13ab9788e6b1aa5a56877f": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_004.jpg",
     "filename": "Scan2020-04-29_215020_004.jpg",
-    "timestamp": "2026-05-07T17:08:24.008658",
+    "timestamp": "2026-05-08T14:00:14.525182",
     "row_number": 69,
     "proposal": {
       "proposedName": "2020-02-20_Unknown_MedicalRecord_Natalie_012.jpg",
@@ -1173,10 +1173,10 @@
     "status": "pending"
   },
   "2f68767b8d41401104c1b7dd9684ecdc874ba7847a77168ce6c5f7f79d0ba831": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_006.jpg",
     "filename": "Scan2020-04-29_215020_006.jpg",
-    "timestamp": "2026-05-07T17:08:24.011325",
+    "timestamp": "2026-05-08T14:00:14.527827",
     "row_number": 71,
     "proposal": {
       "proposedName": "2020-02-20_BaptistHealth_Rx_Leaflets_Natalie_010.jpg",
@@ -1190,10 +1190,10 @@
     "status": "pending"
   },
   "36b51e3cd125867d63efe8384a0a3c3585cf650a79274d819315d0e38bb00f8b": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_007.jpg",
     "filename": "Scan2020-04-29_215020_007.jpg",
-    "timestamp": "2026-05-07T17:08:24.012834",
+    "timestamp": "2026-05-08T14:00:14.529245",
     "row_number": 72,
     "proposal": {
       "proposedName": "2020-02-20_DoralER_Rx_Natalie.jpg",
@@ -1207,10 +1207,10 @@
     "status": "pending"
   },
   "1fe0d0085b86321591e4529b6d14d7ae4216bf5622986ec706cb7708642dc33c": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_005.jpg",
     "filename": "Scan2020-04-29_215020_005.jpg",
-    "timestamp": "2026-05-07T17:08:24.010030",
+    "timestamp": "2026-05-08T14:00:14.526538",
     "row_number": 70,
     "proposal": {
       "proposedName": "2020-02-20_Unknown_MedicalRecord_Natalie_011.jpg",
@@ -1224,10 +1224,10 @@
     "status": "pending"
   },
   "782fdbff85f832cb0feb80558b35c15e1e59d42d0b174fdb06915bb47af37762": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_008.jpg",
     "filename": "Scan2020-04-29_215020_008.jpg",
-    "timestamp": "2026-05-07T17:08:24.016490",
+    "timestamp": "2026-05-08T14:00:14.531838",
     "row_number": 74,
     "proposal": {
       "proposedName": "2020-02-20_BaptistHealth_Rx_Natalie_001.jpg",
@@ -1241,10 +1241,10 @@
     "status": "pending"
   },
   "b7c753da27b673c432339f2342ae7bacdaea89fa992653a580171db81b20fa2b": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_009.jpg",
     "filename": "Scan2020-04-29_215020_009.jpg",
-    "timestamp": "2026-05-07T17:08:24.015083",
+    "timestamp": "2026-05-08T14:00:14.530544",
     "row_number": 73,
     "proposal": {
       "proposedName": "2020-02-20_DoralER_MedicalRecord_Natalie.jpg",
@@ -1258,11 +1258,11 @@
     "status": "pending"
   },
   "c9d7dd03a90799affaaa4c8c3e429511659ae23dcfdbedd49aac6a7fa9fcc6fe": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_010.jpg",
     "filename": "Scan2020-04-29_215020_010.jpg",
-    "timestamp": "2026-05-07T17:08:24.020825",
-    "row_number": 76,
+    "timestamp": "2026-05-08T14:00:14.533577",
+    "row_number": 75,
     "proposal": {
       "proposedName": "2020-02-20_DoralER_Rx_Natalie.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -1275,11 +1275,11 @@
     "status": "pending"
   },
   "d4e47b70ef906476a846ab203bf828c7e9eae4b686c8b78c31f8cd6cb19f3601": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_011.jpg",
     "filename": "Scan2020-04-29_215020_011.jpg",
-    "timestamp": "2026-05-07T17:08:24.018766",
-    "row_number": 75,
+    "timestamp": "2026-05-08T14:00:14.535136",
+    "row_number": 76,
     "proposal": {
       "proposedName": "2020-02-20_DoralER_MedicalRecord_Natalie.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Hospitalization/",
@@ -1292,11 +1292,11 @@
     "status": "pending"
   },
   "07ea5e18d92b80f16eb365eb825795bf161cfe30e1604a32166d2504fc9e623d": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_014.jpg",
     "filename": "Scan2020-04-29_215020_014.jpg",
-    "timestamp": "2026-05-07T17:08:24.026385",
-    "row_number": 80,
+    "timestamp": "2026-05-08T14:00:14.536685",
+    "row_number": 77,
     "proposal": {
       "proposedName": "2020-02-20_DoralER_MedicalRecord_Natalie.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Hospitalization/",
@@ -1309,11 +1309,11 @@
     "status": "pending"
   },
   "ab566afb0eeea8c5c9178a0679bb2a6202c19dfdc85183c9c2f53986e088aa84": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_013.jpg",
     "filename": "Scan2020-04-29_215020_013.jpg",
-    "timestamp": "2026-05-07T17:08:24.023734",
-    "row_number": 78,
+    "timestamp": "2026-05-08T14:00:14.539904",
+    "row_number": 79,
     "proposal": {
       "proposedName": "2020-02-20_DoralER_Rx_Natalie.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -1326,11 +1326,11 @@
     "status": "pending"
   },
   "165753bf2050b5964d1dcae8f56d1bb7099206161472b6a39fc37ef496f267cc": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_012.jpg",
     "filename": "Scan2020-04-29_215020_012.jpg",
-    "timestamp": "2026-05-07T17:08:24.022373",
-    "row_number": 77,
+    "timestamp": "2026-05-08T14:00:14.538454",
+    "row_number": 78,
     "proposal": {
       "proposedName": "2020-02-20_Unknown_MedicalRecord_Natalie.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -1343,44 +1343,10 @@
     "status": "pending"
   },
   "9daaeeca76386b2fdd6d31874a3b20552bb851b1708ca251091d71b10d20474a": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_017.jpg",
     "filename": "Scan2020-04-29_215020_017.jpg",
-    "timestamp": "2026-05-07T17:08:24.028310",
-    "row_number": 81,
-    "proposal": {
-      "proposedName": "2020-02-20_Unknown_MedicalRecord_Natalie.jpg",
-      "proposedDest": "03-Resources/Scans/",
-      "confidence": 0.72,
-      "docType": "MedicalRecord",
-      "person": "Natalie",
-      "provider": "Unknown",
-      "ruleMatchId": "medical_record:no-org"
-    },
-    "status": "pending"
-  },
-  "f28090ae9717661540ddf25c2be0e81126281331d19f4c78112018283fa2d9d3": {
-    "batchId": "batch-3ae527f8d8be",
-    "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_015.jpg",
-    "filename": "Scan2020-04-29_215020_015.jpg",
-    "timestamp": "2026-05-07T17:08:24.025069",
-    "row_number": 79,
-    "proposal": {
-      "proposedName": "2020-02-20_DoralER_MedicalRecord_Natalie.jpg",
-      "proposedDest": "02-Areas/Family/Natalie/Health/Hospitalization/",
-      "confidence": 0.92,
-      "docType": "MedicalRecord",
-      "person": "Natalie",
-      "provider": "DoralER",
-      "ruleMatchId": "medical_record:doral-er"
-    },
-    "status": "pending"
-  },
-  "213040122522701c449554cbba5af56b201e08ab531d9c2ee627fc3c2fa65a75": {
-    "batchId": "batch-3ae527f8d8be",
-    "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_016.jpg",
-    "filename": "Scan2020-04-29_215020_016.jpg",
-    "timestamp": "2026-05-07T17:08:24.029691",
+    "timestamp": "2026-05-08T14:00:14.544617",
     "row_number": 82,
     "proposal": {
       "proposedName": "2020-02-20_Unknown_MedicalRecord_Natalie.jpg",
@@ -1393,12 +1359,46 @@
     },
     "status": "pending"
   },
+  "f28090ae9717661540ddf25c2be0e81126281331d19f4c78112018283fa2d9d3": {
+    "batchId": "batch-5bcc115d355f",
+    "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_015.jpg",
+    "filename": "Scan2020-04-29_215020_015.jpg",
+    "timestamp": "2026-05-08T14:00:14.546277",
+    "row_number": 83,
+    "proposal": {
+      "proposedName": "2020-02-20_DoralER_MedicalRecord_Natalie.jpg",
+      "proposedDest": "02-Areas/Family/Natalie/Health/Hospitalization/",
+      "confidence": 0.92,
+      "docType": "MedicalRecord",
+      "person": "Natalie",
+      "provider": "DoralER",
+      "ruleMatchId": "medical_record:doral-er"
+    },
+    "status": "pending"
+  },
+  "213040122522701c449554cbba5af56b201e08ab531d9c2ee627fc3c2fa65a75": {
+    "batchId": "batch-5bcc115d355f",
+    "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_016.jpg",
+    "filename": "Scan2020-04-29_215020_016.jpg",
+    "timestamp": "2026-05-08T14:00:14.541452",
+    "row_number": 80,
+    "proposal": {
+      "proposedName": "2020-02-20_Unknown_MedicalRecord_Natalie.jpg",
+      "proposedDest": "03-Resources/Scans/",
+      "confidence": 0.72,
+      "docType": "MedicalRecord",
+      "person": "Natalie",
+      "provider": "Unknown",
+      "ruleMatchId": "medical_record:no-org"
+    },
+    "status": "pending"
+  },
   "594d0fc4c1a14d298b8095c4b865b7f872cd43e4cc612018f120e300b92612d6": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_018.jpg",
     "filename": "Scan2020-04-29_215020_018.jpg",
-    "timestamp": "2026-05-07T17:08:24.031530",
-    "row_number": 83,
+    "timestamp": "2026-05-08T14:00:14.542949",
+    "row_number": 81,
     "proposal": {
       "proposedName": "2020-04-29_SSNFront_Natalie_EXP-UNKNOWN_150.jpg",
       "proposedDest": "02-Areas/Legal/Identity/Natalie/",
@@ -1411,11 +1411,11 @@
     "status": "pending"
   },
   "9376bfafda1bb349877103895bd748cca3906bb68c00184d7219b99ab3102962": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_020.jpg",
     "filename": "Scan2020-04-29_215020_020.jpg",
-    "timestamp": "2026-05-07T17:08:24.034925",
-    "row_number": 85,
+    "timestamp": "2026-05-08T14:00:14.550507",
+    "row_number": 86,
     "proposal": {
       "proposedName": "2020-02-20_BaptistHealth_Rx_Natalie_002.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Prescriptions/",
@@ -1428,11 +1428,11 @@
     "status": "pending"
   },
   "5d008771a1279d33b997e710b1a2c73827b7464c04f45f335382009f16865991": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200510 Miscarriage/Miscarriage 20200510_000.jpg",
     "filename": "Miscarriage 20200510_000.jpg",
-    "timestamp": "2026-05-07T17:08:24.036548",
-    "row_number": 86,
+    "timestamp": "2026-05-08T14:00:14.549047",
+    "row_number": 85,
     "proposal": {
       "proposedName": "2020-05-10_BaptistHealth_MedicalRecord_Natalie_001.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Hospitalization/",
@@ -1445,10 +1445,10 @@
     "status": "pending"
   },
   "5b8f0451c0c8c2dfc02f7fa9296f268da5aee06d1959ef201a1c662948afa2bc": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200510 Miscarriage/Miscarriage 20200510_002.jpg",
     "filename": "Miscarriage 20200510_002.jpg",
-    "timestamp": "2026-05-07T17:08:24.039857",
+    "timestamp": "2026-05-08T14:00:14.553498",
     "row_number": 88,
     "proposal": {
       "proposedName": "2020-05-10_Unknown_MedicalRecord_Natalie.jpg",
@@ -1462,10 +1462,10 @@
     "status": "pending"
   },
   "bdc49bd73bb1671bf4d5a9201f45b68c7acea84cfe537c2e18550a3ea43f8fd5": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200220 Chest Ct/Scan2020-04-29_215020_019.jpg",
     "filename": "Scan2020-04-29_215020_019.jpg",
-    "timestamp": "2026-05-07T17:08:24.033352",
+    "timestamp": "2026-05-08T14:00:14.547633",
     "row_number": 84,
     "proposal": {
       "proposedName": "2020-02-20_Unknown_Rx_Please_Natalie_003.jpg",
@@ -1479,10 +1479,10 @@
     "status": "pending"
   },
   "1ae8fc1ce9849fb213804a4872df3f8b2de1d77cc08fb24638ac993e28a831b1": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200510 Miscarriage/Miscarriage 20200510_001.jpg",
     "filename": "Miscarriage 20200510_001.jpg",
-    "timestamp": "2026-05-07T17:08:24.038315",
+    "timestamp": "2026-05-08T14:00:14.551996",
     "row_number": 87,
     "proposal": {
       "proposedName": "2020-05-10_BaptistHealth_MedicalRecord_Natalie_006.jpg",
@@ -1496,10 +1496,10 @@
     "status": "pending"
   },
   "4aaff7ca6a33fde4a3d88b33b7e2df8cef84f87a7ed592e52164d248274ddbbd": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200510 Miscarriage/Miscarriage 20200510_003.jpg",
     "filename": "Miscarriage 20200510_003.jpg",
-    "timestamp": "2026-05-07T17:08:24.041712",
+    "timestamp": "2026-05-08T14:00:14.555357",
     "row_number": 89,
     "proposal": {
       "proposedName": "2020-05-10_BaptistHealth_MedicalRecord_Natalie_010.jpg",
@@ -1513,11 +1513,11 @@
     "status": "pending"
   },
   "d5ce12435086ad9c8d994457724bbc5d888319a737e7accd9dba2b15ebe879a6": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200510 Miscarriage/Miscarriage 20200510_005.jpg",
     "filename": "Miscarriage 20200510_005.jpg",
-    "timestamp": "2026-05-07T17:08:24.046169",
-    "row_number": 92,
+    "timestamp": "2026-05-08T14:00:14.558656",
+    "row_number": 91,
     "proposal": {
       "proposedName": "2020-05-10_Unknown_MedicalRecord_Natalie.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -1530,11 +1530,11 @@
     "status": "pending"
   },
   "de988434c3b1a7b55d3ee0c30440ff9bb066fcf88e78d8572267363c41583a07": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200510 Miscarriage/Miscarriage 20200510_004.jpg",
     "filename": "Miscarriage 20200510_004.jpg",
-    "timestamp": "2026-05-07T17:08:24.044626",
-    "row_number": 91,
+    "timestamp": "2026-05-08T14:00:14.556942",
+    "row_number": 90,
     "proposal": {
       "proposedName": "2020-05-10_BaptistHealth_MedicalRecord_Natalie_009.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Hospitalization/",
@@ -1547,11 +1547,11 @@
     "status": "pending"
   },
   "4acda160e3e180e67dd65e228cc357c536b409b3d263564513c8f7a06c51c8c2": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200510 Miscarriage/Miscarriage 20200510_007.jpg",
     "filename": "Miscarriage 20200510_007.jpg",
-    "timestamp": "2026-05-07T17:08:24.049379",
-    "row_number": 94,
+    "timestamp": "2026-05-08T14:00:14.561432",
+    "row_number": 93,
     "proposal": {
       "proposedName": "2020-05-10_Unknown_MedicalRecord_Natalie_007.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -1564,11 +1564,11 @@
     "status": "pending"
   },
   "34520bbdb676c1b2f96514d838c5ffc0fb4386b4c0709a0a4604cbf99beaaa2a": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200510 Miscarriage/Miscarriage 20200510_006.jpg",
     "filename": "Miscarriage 20200510_006.jpg",
-    "timestamp": "2026-05-07T17:08:24.043165",
-    "row_number": 90,
+    "timestamp": "2026-05-08T14:00:14.560017",
+    "row_number": 92,
     "proposal": {
       "proposedName": "2020-05-10_Unknown_MedicalRecord_Natalie_008.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -1581,11 +1581,11 @@
     "status": "pending"
   },
   "133e8c6c4458796b97822910448bfe327cdc681e451df8a205195696a3d8c2c9": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200510 Miscarriage/Miscarriage 20200510_008.jpg",
     "filename": "Miscarriage 20200510_008.jpg",
-    "timestamp": "2026-05-07T17:08:24.047884",
-    "row_number": 93,
+    "timestamp": "2026-05-08T14:00:14.562732",
+    "row_number": 94,
     "proposal": {
       "proposedName": "2020-05-10_Unknown_MedicalRecord_Natalie_002.jpg",
       "proposedDest": "03-Resources/Scans/",
@@ -1598,11 +1598,11 @@
     "status": "pending"
   },
   "a8611d5e8bd14011108ac9556271b0023480e6d2e2c613218c678368ec6a07d8": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20200510 Miscarriage/Miscarriage 20200510_009.jpg",
     "filename": "Miscarriage 20200510_009.jpg",
-    "timestamp": "2026-05-07T17:08:24.053448",
-    "row_number": 96,
+    "timestamp": "2026-05-08T14:00:14.564254",
+    "row_number": 95,
     "proposal": {
       "proposedName": "2020-05-10_BaptistHealth_MedicalRecord_Natalie_001.jpg",
       "proposedDest": "02-Areas/Family/Natalie/Health/Hospitalization/",
@@ -1615,11 +1615,11 @@
     "status": "pending"
   },
   "89a2f6bc867f9ec8cc6d53fe7877fced6ed527df3e5dcdb3e17083d3e8210d71": {
-    "batchId": "batch-3ae527f8d8be",
+    "batchId": "batch-5bcc115d355f",
     "path": "/home/ddieppa/scanner/inbox/Doctor/Natalie/20210617 Eye Exam/20210617 Eye Exam.pdf",
     "filename": "20210617 Eye Exam.pdf",
-    "timestamp": "2026-05-07T17:08:24.051078",
-    "row_number": 95,
+    "timestamp": "2026-05-08T14:00:14.565619",
+    "row_number": 96,
     "proposal": {
       "proposedName": "2022-05-03_Unknown_EyeExam_Natalie.pdf",
       "proposedDest": "03-Resources/Scans/",
