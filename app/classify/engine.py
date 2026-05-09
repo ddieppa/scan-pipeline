@@ -170,7 +170,6 @@ class ClassificationResult:
     brand_name: str | None = None  # Brand name (e.g., "Lexapro")
     classification_confidence: float = 0.0  # How certain we are the TYPE is correct
     auto_approved: bool = False  # True if confidence >= threshold and no conflicting signals
-    llm_alternative: dict | None = None  # LLM fallback result when it disagrees with high confidence
 
 
 # Recent identity document cache for sequential Front/Back detection
@@ -1308,44 +1307,6 @@ def classify_document(text: str, path: Path, scan_date: str, rules: CompiledRule
     # Clamp classification_confidence to [0, 1]
     classification_confidence = max(0.0, min(1.0, classification_confidence))
 
-    # ── LLM fallback for low-confidence or ambiguous classifications ──
-    llm_alternative = None
-    llm_result = None
-    if classification_confidence < 0.70 or ambiguous_flag:
-        try:
-            from app.classify.llm_fallback import run_llm_fallback
-            known_doc_types = [dt.id for dt in rules.document_types]
-            known_people = list(rules.people_aliases.keys())
-            llm_result = run_llm_fallback(
-                ocr_text=normalized,
-                candidates=None,
-                known_doc_types=known_doc_types,
-                known_people=known_people,
-                sensitive_doc_type=doc_rule.id if doc_rule else None,
-            )
-            if llm_result:
-                llm_doc_type = llm_result.get("doc_type", "").lower()
-                llm_confidence = llm_result.get("confidence", 0)
-                current_doc_type_id = doc_rule.id if doc_rule else ""
-                if llm_doc_type == current_doc_type_id:
-                    # LLM agrees with regex → boost confidence
-                    boost = llm_result.get("lift", 0.05)
-                    classification_confidence = min(1.0, classification_confidence + boost)
-                elif llm_confidence > 0.85:
-                    # LLM disagrees with high confidence → include as alternative
-                    llm_alternative = {
-                        "doc_type": llm_result.get("doc_type"),
-                        "person": llm_result.get("person"),
-                        "provider": llm_result.get("provider"),
-                        "confidence": llm_confidence,
-                        "reasoning": llm_result.get("reasoning"),
-                        "model": llm_result.get("model"),
-                    }
-                # If LLM fails or disagrees with low confidence → no change
-        except Exception as e:
-            import logging
-            logging.getLogger(__name__).debug(f"LLM fallback skipped: {e}")
-
     highlights = {
         "docDate": doc_date,
         "amount": amount,
@@ -1386,7 +1347,6 @@ def classify_document(text: str, path: Path, scan_date: str, rules: CompiledRule
         physician=physician,
         classification_confidence=classification_confidence,
         auto_approved=False,  # Set later by pipeline
-        llm_alternative=llm_alternative,
     )
 
 

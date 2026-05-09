@@ -1317,9 +1317,6 @@ def main():
     # failed-moves — list failed moves from database
     failed_parser = subparsers.add_parser("failed-moves", help="List failed file moves")
 
-    # llm-stats — show LLM fallback usage statistics
-    llm_stats_parser = subparsers.add_parser("llm-stats", help="Show LLM fallback usage statistics")
-
     # corrections review — review and promote/reject correction suggestions
     corrections_review_parser = subparsers.add_parser("corrections-review", help="Review pending correction suggestions")
     corrections_review_parser.add_argument("--accept", type=int, default=None, help="Accept and promote suggestion by ID")
@@ -1375,8 +1372,6 @@ def main():
         cmd_recover(args)
     elif args.command == "failed-moves":
         cmd_failed_moves(args)
-    elif args.command == "llm-stats":
-        cmd_llm_stats(args)
     elif args.command == "corrections-review":
         cmd_corrections_review(args)
     elif args.command == "status":
@@ -1386,35 +1381,6 @@ def main():
     else:
         parser.print_help()
 
-
-def cmd_llm_stats(args) -> None:
-    """Show LLM fallback usage statistics with local/cloud/fallback breakdown."""
-    from app.classify.llm_fallback import get_llm_stats
-    stats = get_llm_stats()
-    if stats["total_calls"] == 0:
-        print("No LLM fallback calls recorded yet. LLM fallback triggers on low-confidence docs.")
-        print("Config: config/llm.yaml (local enabled, 60s timeout → cloud fallback)")
-        return
-
-    local = stats['local_calls']
-    cloud = stats['cloud_calls']
-    fallback = stats.get('fallback_count', 0)
-    total = stats['total_calls']
-
-    print("📊 LLM Fallback Statistics")
-    print(f"  Total calls:        {total}")
-    print(f"  🖥️  Local calls:    {local} ({local/total*100:.0f}%)" if total else "")
-    print(f"  ☁️  Cloud calls:    {cloud} ({cloud/total*100:.0f}%)" if total else "")
-    print(f"  🔄 Fallbacks:       {fallback} (local failed → cloud)")
-    print(f"  ⚠️  Timeouts:       {stats['likely_timeouts']}")
-    print(f"  Avg latency:       {stats['avg_latency_ms']:.0f} ms")
-    print(f"  Feedback log:      {stats['feedback_log_entries']} entries")
-
-    if stats.get('per_model'):
-        print("\n  Per-model breakdown:")
-        for m in stats['per_model']:
-            source = "🖥️ local" if "cloud" not in m['model'] else "☁️ cloud "
-            print(f"    {source}  {m['model']:25s}  {m['count']:3d} calls  avg {m['avg_latency_ms']:.0f}ms  range [{m['min_latency_ms']}-{m['max_latency_ms']}ms]")
 
 
 def cmd_corrections_review(args) -> None:

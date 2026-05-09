@@ -13,3 +13,4 @@
 {"ts": "2026-05-08T16:54:25.884344", "sha256": "2c8b9026f488f649a87a68ef44c023057eb6ec5d748fde28c18b69b2f8a05a8a", "model": "glm-5.1:cloud", "source": "cloud", "doc_type_proposed": null, "latency_ms": 60014, "fallback": true}
 {"ts": "2026-05-08T16:59:55.876864", "sha256": "2c8b9026f488f649a87a68ef44c023057eb6ec5d748fde28c18b69b2f8a05a8a", "model": "qwen3-vl:8b", "source": "local", "doc_type_proposed": null, "latency_ms": 60061, "fallback": false}
 {"ts": "2026-05-08T17:05:56.528378", "sha256": "2c8b9026f488f649a87a68ef44c023057eb6ec5d748fde28c18b69b2f8a05a8a", "model": "qwen3-vl:8b", "source": "local", "doc_type_proposed": null, "latency_ms": 60054, "fallback": false}
+{"ts": "2026-05-09T16:28:17.063846", "sha256": "2c8b9026f488f649a87a68ef44c023057eb6ec5d748fde28c18b69b2f8a05a8a", "model": "glm-5.1:cloud", "source": "cloud", "doc_type_proposed": null, "latency_ms": 601654, "fallback": false}
