@@ -73,6 +73,28 @@ def approve_proposal(
     # Update person's health index file
     _update_index_for_approved(settings, sha256, target_path, final_dest, proposal_data)
 
+    # Update OCR cache with new file path
+    try:
+        from app.state.scan_db import get_ocr_cache, save_ocr_cache, init_db, prune_file_index
+        cached = get_ocr_cache(sha256)
+        if cached and cached.get("ocr_text"):
+            save_ocr_cache(
+                sha256=sha256,
+                file_path=str(target_path),
+                filename=target_path.name,
+                ocr_text=cached["ocr_text"],
+                text_source=cached.get("text_source", "ocr_image"),
+                ocr_duration_ms=cached.get("ocr_duration_ms"),
+                file_size=cached.get("file_size"),
+            )
+        # Update file_index path + prune stale entries
+        init_db()
+        prune_count = prune_file_index()
+        if prune_count > 0:
+            print(f"🗑️ Cleaned up {prune_count} stale file_index entries")
+    except Exception:
+        pass
+
     # Clean up empty parent folders left behind in the inbox
     _cleanup_empty_parents(source.parent, settings.inbox_root)
 

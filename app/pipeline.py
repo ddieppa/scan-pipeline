@@ -35,24 +35,31 @@ def process_batch(settings: Settings, files: list[Path], batch_id: str | None = 
 
     duplicate_index = DuplicateIndex(settings.qsync_root, allowed_duplicate_exts)
     # Use SQLite-based file index for duplicate checking instead of walking QSync.
-    # The SQLite index is much faster than walking the 9P filesystem.
-    # Build/update the index if SCAN_BUILD_INDEX=1 or if index is empty.
-    from app.state.scan_db import check_duplicate_index, init_db
-    init_db()  # Ensure file_index table exists
+    # Always do an incremental index update on batch scans (fast — only new/changed files).
+    # Full rebuild only when SCAN_BUILD_INDEX=1.
+    from app.state.scan_db import check_duplicate_index, init_db, build_file_index
+    init_db()
     use_sql_index = True
-    import os
     if os.environ.get("SCAN_BUILD_INDEX", "").strip() == "1":
-        from app.state.scan_db import build_file_index
         idx_stats = build_file_index(str(settings.qsync_root))
-        print(f"📊 File index built: {idx_stats}")
-    elif len(filtered_files) > 1:
-        # Only build index for batch scans if not already built
-        pass
+        print(f"📊 Full file index rebuilt: {idx_stats}")
+    else:
+        # Incremental update: only index files that have changed since last scan
+        idx_stats = build_file_index(str(settings.qsync_root))
+        if idx_stats.get("indexed", 0) > 0 or idx_stats.get("skipped", 0) > 0:
+            print(f"📊 Index incremental: {idx_stats['indexed']} new, {idx_stats['skipped']} unchanged, {idx_stats['sidecars_found']} sidecars updated")
+        # Periodic prune: remove stale entries every ~50 scans (check based on total count)
+        total_indexed = idx_stats.get("indexed", 0) + idx_stats.get("skipped", 0)
+        if total_indexed > 12000:
+            from app.state.scan_db import prune_file_index
+            pruned = prune_file_index(str(settings.qsync_root))
+            if pruned:
+                print(f"🗑️ Pruned {pruned} stale file_index entries (files no longer exist)")
 
     if os.environ.get("SCAN_BUILD_INDEX", "").strip() == "1":
         duplicate_index.build()
     else:
-        pass  # Empty index — duplicate checks use SQLite instead
+        pass  # SQLite index is kept up-to-date incrementally
 
     max_workers = min(
         settings.max_workers,

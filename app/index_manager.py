@@ -69,6 +69,71 @@ def update_health_index(qsync_root: Path, dest_path: Path, person: str, doc_type
     return index_path
 
 
+def update_event_index(
+    qsync_root: Path,
+    event_folder: Path,
+    person: str,
+    event_date: str,
+    event_provider: str,
+    event_doc_type: str,
+    files: list[Path],
+    diagnoses: list[str] | None = None,
+    providers: list[str] | None = None,
+    medications: list[str] | None = None,
+) -> Path | None:
+    """Create or update a per-event index file in a subfolder.
+
+    When a multi-document event (e.g. hospitalization) is organized into a
+    subfolder, this writes a structured 00_INDEX_<event>.md with file map,
+    diagnoses, providers, and medications.
+    """
+    if not event_folder.exists() or not event_folder.is_dir():
+        return None
+
+    # Only index health-related folders
+    if "Health" not in str(event_folder):
+        return None
+
+    folder_name = event_folder.name
+    index_path = event_folder / f"00_INDEX_{folder_name}.md"
+
+    lines = [
+        f"# 00_INDEX — {folder_name}",
+        "",
+        f"**Patient:** {person}",
+        f"**Date:** {event_date}",
+        f"**Provider:** {event_provider}",
+        f"**Type:** {event_doc_type}",
+        f"**Folder:** `{event_folder.relative_to(qsync_root)}`",
+        "",
+        "## Documents",
+        "",
+    ]
+
+    for f in sorted(files):
+        lines.append(f"- `{f.name}`")
+
+    if diagnoses:
+        lines.extend(["", "## Diagnoses", ""])
+        for d in sorted(set(diagnoses)):
+            lines.append(f"- {d}")
+
+    if providers:
+        lines.extend(["", "## Providers", ""])
+        for p in sorted(set(providers)):
+            lines.append(f"- {p}")
+
+    if medications:
+        lines.extend(["", "## Medications", ""])
+        for m in sorted(set(medications)):
+            lines.append(f"- {m}")
+
+    lines.extend(["", "---", f"*Index auto-generated on {datetime.now().strftime('%Y-%m-%d')}*", ""])
+
+    index_path.write_text("\n".join(lines), encoding="utf-8")
+    return index_path
+
+
 def _new_index(person: str) -> str:
     """Generate a fresh index template for a person."""
     today = datetime.now().strftime("%Y-%m-%d")

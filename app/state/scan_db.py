@@ -240,6 +240,23 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_notification_log_sha ON notification_log(sha256)
     ''')
 
+    # ── Performance metrics ──
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS metrics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            metric_name TEXT NOT NULL,
+            metric_value REAL NOT NULL,
+            dimensions TEXT,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    c.execute('''
+        CREATE INDEX IF NOT EXISTS idx_metrics_name ON metrics(metric_name)
+    ''')
+    c.execute('''
+        CREATE INDEX IF NOT EXISTS idx_metrics_time ON metrics(timestamp)
+    ''')
+
     # ── LLM fallback classification cache ──
     c.execute('''
         CREATE TABLE IF NOT EXISTS llm_classifications (
@@ -827,6 +844,101 @@ def get_lifecycle_stats(days: int = 0) -> dict:
     return stats
 
 
+def log_metric(metric_name: str, metric_value: float, dimensions: dict | None = None) -> None:
+    """Log a performance metric to the metrics table."""
+    init_db()
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    dims_json = json.dumps(dimensions) if dimensions else None
+    c.execute('''
+        INSERT INTO metrics (metric_name, metric_value, dimensions)
+        VALUES (?, ?, ?)
+    ''', (metric_name, metric_value, dims_json))
+    conn.commit()
+    conn.close()
+
+
+def get_metrics(metric_name: str | None = None, since: str | None = None, limit: int = 100) -> list[dict]:
+    """Query metrics from the database."""
+    init_db()
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+
+    conditions = []
+    params = []
+    if metric_name:
+        conditions.append("metric_name = ?")
+        params.append(metric_name)
+    if since:
+        conditions.append("timestamp >= ?")
+        params.append(since)
+
+    where_clause = f"WHERE {' AND '.join(conditions)}" if conditions else ""
+    c.execute(f"SELECT * FROM metrics {where_clause} ORDER BY timestamp DESC LIMIT ?", (*params, limit))
+    rows = [dict(r) for r in c.fetchall()]
+    conn.close()
+    return rows
+
+
+def get_metrics_summary() -> dict:
+    """Get aggregate metrics summary for the last 24h."""
+    init_db()
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    summary = {}
+
+    # OCR duration stats
+    c.execute("""
+        SELECT metric_name,
+               COUNT(*) as n,
+               AVG(metric_value) as avg,
+               MIN(metric_value) as min,
+               MAX(metric_value) as max
+        FROM metrics
+        WHERE metric_name LIKE 'ocr_%' AND timestamp >= datetime('now', '-1 day')
+        GROUP BY metric_name
+    """)
+    for row in c.fetchall():
+        summary[row[0]] = {"n": row[1], "avg_ms": round(row[2], 1), "min_ms": row[3], "max_ms": row[4]}
+
+    # Classification confidence distribution
+    c.execute("""
+        SELECT CASE
+            WHEN metric_value >= 0.90 THEN 'high (>=90%)'
+            WHEN metric_value >= 0.75 THEN 'medium (75-89%)'
+            WHEN metric_value >= 0.50 THEN 'low (50-74%)'
+            ELSE 'very_low (<50%)'
+        END as confidence_bucket,
+        COUNT(*) as n
+        FROM metrics
+        WHERE metric_name = 'classification_confidence'
+          AND timestamp >= datetime('now', '-1 day')
+        GROUP BY confidence_bucket
+        ORDER BY metric_value DESC
+    """)
+    summary['confidence_distribution'] = {row[0]: row[1] for row in c.fetchall()}
+
+    # Correction rate
+    c.execute("""
+        SELECT 
+            SUM(CASE WHEN metric_name = 'correction_applied' THEN 1 ELSE 0 END) as corrected,
+            SUM(CASE WHEN metric_name = 'approved_no_change' THEN 1 ELSE 0 END) as unchanged
+        FROM metrics
+        WHERE metric_name IN ('correction_applied', 'approved_no_change')
+          AND timestamp >= datetime('now', '-1 day')
+    """)
+    row = c.fetchone()
+    if row:
+        corrected, unchanged = row
+        total = (corrected or 0) + (unchanged or 0)
+        summary['correction_rate'] = f"{corrected}/{total} ({corrected/total*100:.0f}%)" if total else "N/A"
+
+    conn.close()
+    return summary
+
+
 def get_recent_lifecycle(limit: int = 20, offset: int = 0) -> list[dict]:
     """Get recent lifecycle records, most recent first."""
     init_db()
@@ -899,6 +1011,30 @@ def _extract_denormalized_meta(meta_json: str | None) -> tuple[str, str, str]:
         str(meta.get("patient", "")).strip().lower(),
         str(meta.get("doc_type", "")).strip().lower(),
     )
+
+def prune_file_index(qsync_root: str | None = None) -> int:
+    """Remove file_index entries for files that no longer exist on disk.
+
+    Returns count of entries pruned.
+    """
+    init_db()
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    c.execute("SELECT path FROM file_index")
+    rows = c.fetchall()
+    to_delete = []
+    for (path,) in rows:
+        if not Path(path).exists():
+            to_delete.append(path)
+
+    if to_delete:
+        c.executemany("DELETE FROM file_index WHERE path = ?", [(p,) for p in to_delete])
+        conn.commit()
+
+    conn.close()
+    return len(to_delete)
+
 
 def build_file_index(root_path: str, extensions: set[str] | None = None) -> dict:
     """Walk QSync root and build a SHA256 index of all supported files.

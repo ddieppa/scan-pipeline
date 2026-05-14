@@ -272,6 +272,26 @@ def cmd_scan(args) -> list[dict]:
 
     init_db()
 
+    # Auto-recover stuck files from processing/ (older than 30 min)
+    processing_dir = settings.inbox_root.parent / "processing"
+    if processing_dir.exists():
+        recovered = 0
+        for f in processing_dir.rglob("*"):
+            if not f.is_file():
+                continue
+            import time
+            age_min = (time.time() - f.stat().st_mtime) / 60
+            if age_min > 30:
+                dest = settings.inbox_root / f.name
+                if not dest.exists():
+                    try:
+                        shutil.move(str(f), str(dest))
+                        recovered += 1
+                    except OSError:
+                        pass
+        if recovered:
+            print(f"🔄 Auto-recovered {recovered} stuck file(s) from processing/")
+
     # Check both inbox and processing directories
     inbox_files = collect_inbox_files(settings.inbox_root, supported)
     processing_dir = settings.inbox_root.parent / "processing"
@@ -354,6 +374,10 @@ def cmd_scan(args) -> list[dict]:
     # Group multi-page documents and add sequential suffixes
     results = group_sequential_pages(results)
 
+    # Detect and split mixed-document page sets (e.g. FMLA + Surgery + Discharge in one scan stack)
+    from app.backfill_reorganize import analyze_multi_document_set
+    results = analyze_multi_document_set(results)
+
     # Save proposals to state store
     batch_id = f"batch-{uuid4().hex[:12]}"
 
@@ -418,6 +442,18 @@ def cmd_scan(args) -> list[dict]:
     print(f"   Proposals saved to state. Use `approve` to move files.")
     print(f"   Use `ocr-cache show --sha SHA` to view cached OCR text.")
     print(f"   Use `ocr-cache rerun --sha SHA` to force re-OCR a specific file.")
+
+    # Log performance metrics
+    try:
+        from app.state.scan_db import log_metric
+        avg_conf = sum(r.get("confidence", 0) for r in results) / len(results) if results else 0
+        log_metric("batch_size", len(results), {"batch_id": batch_id})
+        log_metric("batch_elapsed_sec", round(elapsed, 2), {"batch_id": batch_id, "worker_count": max_workers})
+        log_metric("batch_cache_hits", cache_hits, {"batch_id": batch_id})
+        log_metric("ocr_duration_avg_ms", round(sum(r.get("ocr_duration_ms", 0) or 0 for r in results) / len(results), 1), {"batch_id": batch_id}) if any(r.get("ocr_duration_ms") for r in results) else None
+        log_metric("classification_confidence", round(avg_conf, 3), {"batch_id": batch_id})
+    except Exception:
+        pass
 
     return results
 
@@ -1225,6 +1261,21 @@ def cmd_trace(args) -> None:
     conn.close()
 
 
+def cmd_backfill(args) -> None:
+    """Run the backfill/re-organize workflow on an existing QSync directory."""
+    from app.backfill_reorganize import run_backfill
+    settings = load_settings()
+    run_backfill(
+        target_dir=args.dir,
+        settings=settings,
+        fix_sidecars_only=args.fix_sidecars_only,
+        skip_valid=args.skip_valid,
+        dry_run=args.dry_run,
+        interactive=args.interactive,
+        max_workers=args.max_workers,
+    )
+
+
 def main():
     # ── Setup structured logging ──
     from app.settings import load_settings
@@ -1339,6 +1390,15 @@ def main():
     watch_parser.add_argument("--yes", "-y", action="store_true", help="Auto-approve all detected files")
     watch_parser.add_argument("--dry-run", action="store_true", help="Preview without moving")
 
+    # backfill — re-process and re-organize already-filed documents
+    backfill_parser = subparsers.add_parser("backfill", help="Re-process and re-organize already-filed documents")
+    backfill_parser.add_argument("--dir", required=True, help="Directory to scan for documents needing backfill")
+    backfill_parser.add_argument("--fix-sidecars-only", action="store_true", help="Only fix missing/empty sidecars, don't move files")
+    backfill_parser.add_argument("--skip-valid", action="store_true", help="Skip files that already have valid sidecars")
+    backfill_parser.add_argument("--dry-run", action="store_true", help="Show proposals without moving")
+    backfill_parser.add_argument("--interactive", "-i", action="store_true", help="Ask for approval on each file")
+    backfill_parser.add_argument("--max-workers", type=int, default=4, help="Parallel workers for OCR")
+
     args = parser.parse_args()
 
     if not args.command:
@@ -1378,6 +1438,8 @@ def main():
         cmd_status(args)
     elif args.command == "trace":
         cmd_trace(args)
+    elif args.command == "backfill":
+        cmd_backfill(args)
     else:
         parser.print_help()
 

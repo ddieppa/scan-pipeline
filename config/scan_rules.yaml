@@ -22,6 +22,7 @@ auto_approve:
     - eye_exam
     - bill
     - receipt
+    - religious_supply
 
 # ============================================================
 # PEOPLE — name aliases for person detection
@@ -225,6 +226,13 @@ organizations:
     category: Business
     person: Daniel
     destination: "02-Areas/Business/"
+  # --- Religious supplies ---
+  - id: wholesale-inc-religious
+    names: ["Wholesale Inc", "WHOLESALE INC"]
+    category: ReligiousSupply
+    person: ""  # Person detected from OCR text
+    folder_alias: WholesaleInc
+    destination: "02-Areas/Family/{person}/Religious/"
   - id: expeditors
     names: ["Expeditors", "Expeditors International"]
     category: Employment
@@ -253,11 +261,11 @@ document_types:
       default: "LabRequisition"
 
   medical_record:
-    patterns: ["medical records", "clinical summary", "discharge summary", "discharge instruction", "visit summary", "encounter summary", "hospitalization", "surgery", "lab results", "lab report", "microbiology", "urine culture", "kidney", "flowsheet", "mrn", "ultrasound", "ob report", "ob 1st tri", "ruq us", "pelvic us", "ectopic pregnancy", "miscarriage", "threatened miscarriage", "laparoscopy", "operative report", "pathology report", "radiology report", "imaging report", "chest ct", "ct scan", "x-ray", "school/work excuse", "work excuse", "return to work", "return to school", "certificate to return"]
+    patterns: ["medical records", "clinical summary", "discharge summary", "discharge instruction", "visit summary", "encounter summary", "hospitalization", "surgery", "lab results", "lab report", "microbiology", "urine culture", "kidney", "flowsheet", "mrn", "ultrasound", "ob report", "ob 1st tri", "ruq us", "pelvic us", "ectopic pregnancy", "miscarriage", "threatened miscarriage", "laparoscopy", "laparoscopic", "salpingectomy", "appendectomy", "cholecystectomy", "operative report", "pathology report", "radiology report", "imaging report", "chest ct", "ct scan", "x-ray", "school/work excuse", "work excuse", "return to work", "return to school", "certificate to return", "fmla", "family and medical leave", "medical certification", "WH-380", "serious health condition", "wage and hour division"]
     filename_template: "{date}_{provider}_{doc_label}_{person}.{ext}"
     labels:
       default: "MedicalRecord"
-      Surgery: "SurgerySummary"
+      Surgery: "SurgicalRecord"
       LabResults: "LabResults"
       Discharge: "DischargeSummary"
       Ultrasound: "UltrasoundReport"
@@ -266,6 +274,7 @@ document_types:
       Ectopic: "EctopicPregnancy"
       Miscarriage: "MiscarriageRecord"
       WorkExcuse: "WorkExcuse"
+      FMLA: "FMLA"
 
   prescription:
     patterns: ["prescription", "rx", "medication", "pharmacy"]
@@ -303,6 +312,12 @@ document_types:
   religious_record:
     patterns: ["baptism", "baptismal", "first communion", "religious certificate", "presentation certificate", "bar mitzvah", "bat mitzvah"]
     filename_template: "{date}_{doc_label}_{person}.{ext}"
+
+  religious_supply:
+    patterns: ["herramienta", "corona", "caracol", "sopera", "collar", "eleke", "idel", "ogun", "ochun", "obatala", "yemaya", "yamaya", "oya", "chango", "elegua", "babalu aye", "orula", "oshun", "santeria", "botanica", "religious supplies", "religious supply", "wholesale inc"]
+    filename_template: "{date}_{provider}_ReligiousSupplies_{person}.{ext}"
+    labels:
+      default: "ReligiousSupplies"
 
   vehicle:
     patterns: ["registration renewal", "vehicle registration", "title transfer", "lease end", "odometer", "license plate", "tag renewal", "decal", "vin"]
@@ -387,6 +402,14 @@ category_routing:
     archive_template: "04-Archives/Finance/Medical_Bills/{person}/{year}/"
   Hospital:
     template: "02-Areas/Family/{person}/Health/Hospitalization/"
+  SurgicalRecord:
+    template: "02-Areas/Family/{person}/Health/Hospitalization/"
+  DischargeSummary:
+    template: "02-Areas/Family/{person}/Health/Hospitalization/"
+  WorkExcuse:
+    template: "02-Areas/Family/{person}/Health/"
+  FMLA:
+    template: "02-Areas/Family/{person}/Health/"
   Pediatric:
     template: "02-Areas/Family/{person}/Health/"
   BehavioralHealth:
@@ -396,15 +419,23 @@ category_routing:
   Medical:
     template: "02-Areas/Family/{person}/Health/"
   Lab:
-    template: "02-Areas/Family/{person}/Health/"
+    template: "02-Areas/Family/{person}/Health/Lab/"
   LabRequisition:
-    template: "02-Areas/Family/{person}/Health/"
+    template: "02-Areas/Family/{person}/Health/Lab/"
   Pharmacy:
     template: "02-Areas/Family/{person}/Health/Prescriptions/"
   Prescription:
     template: "02-Areas/Family/{person}/Health/Prescriptions/"
-  Lab:
+  LabResults:
     template: "02-Areas/Family/{person}/Health/Lab/"
+  UltrasoundReport:
+    template: "02-Areas/Family/{person}/Health/Diagnostics/"
+  Flowsheet:
+    template: "02-Areas/Family/{person}/Health/Hospitalization/"
+  EctopicPregnancy:
+    template: "02-Areas/Family/{person}/Health/Hospitalization/"
+  MiscarriageRecord:
+    template: "02-Areas/Family/{person}/Health/Hospitalization/"
 
   # Identity → Legal/Identity
   Identity:
@@ -427,6 +458,8 @@ category_routing:
   # Religious
   Religious:
     template: "02-Areas/Family/{person}/Religious_Records/"
+  ReligiousSupply:
+    template: "02-Areas/Family/{person}/Religious/"
 
   # Business
   Business:
